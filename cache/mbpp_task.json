@@ -1,0 +1,5 @@
+{
+    "task_id": 1,
+    "task_definition": "Write a function add(a, b) that returns the sum of two numbers.",
+    "test_list": ["assert add(2, 3) == 5"]
+}

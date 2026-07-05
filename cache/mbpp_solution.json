@@ -1,0 +1,6 @@
+{
+  "task_id": "1",
+  "benchmark": "mbpp",
+  "success": true,
+  "solution": "def add(a, b):\n    return a + b"
+}

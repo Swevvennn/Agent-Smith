@@ -1,0 +1,186 @@
+import multiprocessing
+import resource
+import builtins
+import socket
+
+from student.sandbox.sandbox_config import SandboxConfig, load_config
+
+
+def _is_path_allowed(path: str, allowed_directories: list[str]) -> bool:
+    import os
+    abs_path = os.path.abspath(path)
+    for allowed in allowed_directories:
+        abs_allowed = os.path.abspath(allowed)
+        if abs_path.startswith(abs_allowed):
+            return True
+    return False
+
+
+def _make_safe_open(allowed_directories: list[str]):
+    real_open = builtins.open
+
+    def safe_open(file, *args, **kwargs):
+        if not _is_path_allowed(str(file), allowed_directories):
+            raise PermissionError(
+                f"Access to '{file}' is not allowed. "
+                f"Allowed directories: {allowed_directories}"
+            )
+        return real_open(file, *args, **kwargs)
+
+    return safe_open
+
+
+def _make_safe_import(authorized_imports: list[str]):
+    real_import = builtins.__import__
+
+    def safe_import(name, *args, **kwargs):
+        base_module = name.split(".")[0]
+        if name not in authorized_imports and f"{base_module}.*" not in authorized_imports \
+                and base_module not in authorized_imports:
+            raise ImportError(f"Import '{name}' is not allowed in sandbox")
+        return real_import(name, *args, **kwargs)
+
+    return safe_import
+
+
+def _block_network(*args, **kwargs):
+    raise PermissionError("Network access is not allowed in sandbox")
+
+
+def _run_in_subprocess(code: str, config: SandboxConfig, result_queue, answer_queue,
+                        mcp_command: str | None = None, mcp_args: list[str] | None = None):
+
+    max_bytes = config.max_memory_mb * 1024 * 1024
+    try:
+        resource.setrlimit(resource.RLIMIT_AS, (max_bytes, max_bytes))
+    except Exception:
+        pass
+    mcp_client = None
+    tool_wrappers = {}
+    if mcp_command is not None:
+        from student.client_mcp.bridge import SyncMCPClient, make_wrappers_tools
+        mcp_client = SyncMCPClient(command=mcp_command, mcp_type="stdio")
+        tool_wrappers = make_wrappers_tools(mcp_client)
+
+    socket.socket = _block_network
+
+    final_answer_holder = {"value": None}
+
+    def final_answer(answer):
+        final_answer_holder["value"] = answer
+        return answer
+
+    safe_builtins = {
+        "print": print, "len": len, "range": range, "enumerate": enumerate,
+        "str": str, "int": int, "float": float, "bool": bool,
+        "list": list, "dict": dict, "set": set, "tuple": tuple,
+        "sorted": sorted, "sum": sum, "min": min, "max": max, "abs": abs,
+        "zip": zip, "map": map, "filter": filter,
+        "isinstance": isinstance, "type": type,
+        "Exception": Exception, "ValueError": ValueError,
+        "TypeError": TypeError, "KeyError": KeyError,
+        "True": True, "False": False, "None": None,
+        "__import__": _make_safe_import(config.authorized_imports),
+        "open": _make_safe_open(config.allowed_directories),
+    }
+
+    namespace = {
+        "__builtins__": safe_builtins,
+        "final_answer": final_answer,
+    }
+    namespace.update(tool_wrappers)
+
+    import sys
+    import io
+    old_stdout = sys.stdout
+    sys.stdout = io.StringIO()
+
+    try:
+        exec(code, namespace)
+        captured = sys.stdout.getvalue()
+        sys.stdout = old_stdout
+        output = captured if captured.strip() else "Code executed successfully"
+        result_queue.put({"success": True, "output": output})
+    except (KeyboardInterrupt, SystemExit):
+        sys.stdout = old_stdout
+        raise
+    except Exception as e:
+        captured = sys.stdout.getvalue()
+        sys.stdout = old_stdout
+        output = captured + f"\n{type(e).__name__}: {e}" if captured.strip() else f"{type(e).__name__}: {e}"
+        result_queue.put({"success": False, "output": output})
+    finally:
+        if mcp_client is not None:
+            mcp_client.close()
+
+    answer_queue.put(final_answer_holder["value"])
+
+
+def run_code(code: str, config: SandboxConfig | None = None,
+             mcp_command: str | None = None, mcp_args: list[str] | None = None) -> dict:
+    if config is None:
+        config = SandboxConfig()
+
+    result_queue = multiprocessing.Queue()
+    answer_queue = multiprocessing.Queue()
+
+    process = multiprocessing.Process(
+        target=_run_in_subprocess,
+        args=(code, config, result_queue, answer_queue, mcp_command, mcp_args),
+    )
+    process.start()
+    process.join(timeout=config.max_execution_time_seconds)
+
+    if process.is_alive():
+        process.terminate()
+        process.join()
+        return {
+            "success": False,
+            "output": f"Execution timed out after {config.max_execution_time_seconds}s. Output is partial.",
+            "final_answer": None,
+            "timed_out": True,
+        }
+
+    result = result_queue.get() if not result_queue.empty() else {
+        "success": False, "output": "Process crashed without returning a result"
+    }
+    final_value = answer_queue.get() if not answer_queue.empty() else None
+
+    result["final_answer"] = final_value
+    result["timed_out"] = False
+    return result
+
+
+# if __name__ == "__main__":
+#     config = load_config()
+
+#     print("--- Test 1: code valide ---")
+#     print(run_code("print('hello'); import math; print(math.sqrt(16))", config))
+
+#     print("\n--- Test 2: import interdit ---")
+#     print(run_code("import os", config))
+
+#     print("\n--- Test 3: final_answer ---")
+#     print(run_code("result = 2 + 2\nfinal_answer(result)", config))
+
+#     print("\n--- Test 4: timeout ---")
+#     fast_config = SandboxConfig(max_execution_time_seconds=2)
+#     print(run_code("while True: pass", fast_config))
+
+#     print("\n--- Test 5: accès réseau bloqué ---")
+#     print(run_code("import socket; s = socket.socket()", config))
+
+#     print("\n--- Test 6: accès fichier hors zone autorisée ---")
+#     print(run_code("open('/etc/passwd', 'r')", config))
+
+#     print("\n--- Test 7: appel d'un outil MCP (run_tests) depuis le sandbox ---")
+#     code_with_mcp = """
+# result = run_tests(
+#     solution_code="def add(a, b):\\n    return a + b",
+#     test_list=["assert add(2, 3) == 5"],
+#     test_imports=[]
+# )
+# print(result)
+# final_answer("def add(a, b):\\n    return a + b")
+# """
+#     print(run_code(code_with_mcp, config, mcp_command="python3", mcp_args=["mcp_tools_mbpp.py"]))
