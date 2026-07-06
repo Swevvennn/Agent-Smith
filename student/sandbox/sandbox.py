@@ -3,7 +3,7 @@ import resource
 import builtins
 import socket
 
-from student.sandbox.sandbox_config import SandboxConfig, load_config
+from sandbox.sandbox_config import SandboxConfig, load_config
 
 
 def _is_path_allowed(path: str, allowed_directories: list[str]) -> bool:
@@ -58,7 +58,7 @@ def _run_in_subprocess(code: str, config: SandboxConfig, result_queue, answer_qu
     mcp_client = None
     tool_wrappers = {}
     if mcp_command is not None:
-        from student.client_mcp.bridge import SyncMCPClient, make_wrappers_tools
+        from client_mcp.bridge import SyncMCPClient, make_wrappers_tools
         mcp_client = SyncMCPClient(command=mcp_command, mcp_type="stdio")
         tool_wrappers = make_wrappers_tools(mcp_client)
 

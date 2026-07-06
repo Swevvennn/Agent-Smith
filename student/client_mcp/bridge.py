@@ -2,7 +2,7 @@ import asyncio
 import threading
 from typing import Any
 
-from student.client_mcp.client import MCPClient
+from client_mcp.client import MCPClient
 
 
 class SyncMCPClient:

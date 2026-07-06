@@ -1,3 +1,6 @@
+# cette partie est l'ancien code de jacem sur lequel il travaille le 6 juillet je le delete car la loop est integrer a la CLI est donc nest plus obligatoire( modif a faire directement sur la cli)
+
+
 import json
 import os
 from dotenv import load_dotenv
@@ -117,6 +120,3 @@ def main():
         json.dump(solution, f, indent=2)
     print("\nSolution saved to cache/mbpp_solution.json")
 
-
-if __name__ == "__main__":
-    main()
