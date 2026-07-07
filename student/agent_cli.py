@@ -6,12 +6,14 @@ from typing import Any, Optional
 from openai import OpenAI
 from dotenv import load_dotenv
 from pathlib import Path
+from pydantic import ValidationError
 
 from agent.extract_code import extract_code
 from sandbox.sandbox import run_code
 from sandbox.sandbox_config import SandboxConfig
 from client_mcp.bridge import SyncMCPClient
 from agent.build_manual import build_sandbox_manual
+from agent.model import MBPPTaskInput, SWEBenchTaskInput, SolutionOutput
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 MCP_COMMAND_MBPP = f"python3 {REPO_ROOT / 'mcp_tools_mbpp.py'}"
@@ -133,50 +135,99 @@ class CLI:
             mcp_client = SyncMCPClient(command=mcp_target or MCP_COMMAND_MBPP, mcp_type="stdio")
         manual = build_sandbox_manual(mcp_client.list_tools())
         mcp_client.close()
-        system_prompt = f"""You are a coding agent that solves Python problems (MBPP).
+        system_prompt = f"""You are a coding agent for MBPP.
 
-You work in a loop: you write ONE Python code block, it runs in a sandbox,
-and you see the result. Then you write the next block, and so on.
+    Your job is to solve the task by iterating through a strict loop:
+    Thought -> Code -> Observation.
 
-{manual}
+    You must reply in this format:
+    Thought: brief reasoning in plain text.
+    Code:
+    ```python
+    # one executable Python block only
+    ```
 
-RULES:
-Before writing code, briefly explain your reasoning (Thought), then write the code block.
-- Always write your code between ```python and ```
-- First write your solution, test it with run_tests, and only call
-final_answer when the tests pass.
+    Only the Python block will be executed. Do not write multiple code blocks.
+    Do not answer with prose only.
 
-EXAMPLE:
-```python
-solution = "def add(a, b):\\n    return a + b"
-result = run_tests(solution_code=solution, test_list=["assert add(2, 3) == 5"])
-print(result)
-```
-Then, once tests pass:
-```python
-final_answer("def add(a, b):\\n    return a + b")
-```
-"""
+    {manual}
+
+    Rules:
+    - Prefer small, testable changes.
+    - Use the available MCP tools as normal Python functions.
+    - First build the solution, then test it with run_tests.
+    - Call final_answer only when the tests pass.
+    - If execution fails, inspect the observation and adapt the next code block.
+    - If no valid code block is produced, rewrite with exactly one ```python block.
+    - If a block is malformed, fix it in the next turn.
+    - If the sandbox reports a timeout, partial output, or an error, use that
+      observation directly and do not guess what happened.
+
+    Example:
+    Thought: I will write the function and verify it with the provided tests.
+    Code:
+    ```python
+    solution = "def add(a, b):\\n    return a + b"
+    result = run_tests(solution_code=solution, test_list=["assert add(2, 3) == 5"])
+    print(result)
+    ```
+
+    When tests pass:
+    Thought: The solution is validated, so I can finish.
+    Code:
+    ```python
+    final_answer("def add(a, b):\\n    return a + b")
+    ```
+    """
         config = SandboxConfig()
+        test_imports = "\n".join(task["test_imports"]) or "None"
+        test_list = "\n".join(task["test_list"]) or "None"
+        user_prompt = f"""
+    Solve the following MBPP task.
+
+    ## Task
+    {task["task_definition"]}
+
+    ## Function signature
+    {task["function_definition"]}
+
+    ## Official test imports
+    {test_imports}
+
+    ## Official tests
+    {test_list}
+
+    Instructions:
+    - Implement exactly the requested function.
+    - Respect the function signature.
+    - Only call `final_answer(...)` after `run_tests` reports success.
+    """
         messages = [
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": task["task_definition"]},
+            {"role": "user", "content": user_prompt},
         ]
         final_solution = None
         for step in range(args.max_iterations):
             print(f"\n===== ITERATION {step + 1} =====")
 
             # a. Ask the LLM
-            response = client.chat.completions.create(
-                model=args.model_name or "mistral-small-latest",
-                messages=messages,
-            )
+            try:
+                response = client.chat.completions.create(
+                    model=args.model_name or "mistral-small-latest",
+                    messages=messages,
+                )
+            except Exception as e:
+                print(f"LLM call failed: {e}")
+                break
             llm_text = response.choices[0].message.content
             print("LLM said:\n", llm_text)
 
             code = extract_code(llm_text)
             if code is None:
-                observation = "No code block found. Write your code between ```python and ```"
+                observation = (
+                    "No valid code block found. "
+                    "Write exactly one ```python block."
+                )
                 print("Observation:", observation)
                 messages.append({"role": "assistant", "content": llm_text})
                 messages.append({"role": "user", "content": observation})
@@ -200,17 +251,24 @@ final_answer("def add(a, b):\\n    return a + b")
             messages.append({"role": "assistant", "content": llm_text})
             messages.append({"role": "user", "content": f"Execution result:\n{observation}"})
 
-        solution = {
-            "task_id": str(task["task_id"]),
-            "benchmark": "mbpp",
-            "success": final_solution is not None,
-            "solution": final_solution or "",
-        }
-        output_path = args.output or "cache/mbpp_solution.json"
+        solution = SolutionOutput(
+            task_id=str(task["task_id"]),
+            benchmark="mbpp",
+            success=final_solution is not None,
+            solution=final_solution or "",
+            system_prompt=system_prompt,
+            iterations=step,
+            total_requests=0,
+            total_input_tokens=0,
+            total_output_tokens=0,
+            total_time_seconds=0,
+            step=[]
+        )
+        output_path = args.output or "../cache/mbpp_solution.json"
         self.save_output(output_path, solution)
         print(f"\nSolution saved to {output_path}")
 
-        return 0 if solution["success"] else 1
+        return 0 if solution.success else 1
 
     def run_swebench_agent(self, args: Any) -> int:
         """Run the SWE-bench agent loop and write the solution output."""
@@ -218,21 +276,35 @@ final_answer("def add(a, b):\\n    return a + b")
 
     def load_task(self, task_file: str) -> dict[str, Any]:
         """Load a benchmark task description from disk."""
-        try:
-            with open(task_file, "r") as f:
-                data = json.load(f)
-            return data
-        except Exception as e:
-            print(f"Error loading task from {task_file}: {e}")
-            return {}
+        if not task_file:
+            print("Error: --task-file is required")
+            raise SystemExit(1)
+        model_class = (MBPPTaskInput
+                       if self.mode == "mbpp"
+                       else SWEBenchTaskInput)
 
-    def save_output(self, output_path: str, payload: dict[str, Any]) -> None:
+        try:
+            with open(task_file) as f:
+                raw = f.read()
+        except OSError as e:
+            print(f"Error loading task from {task_file}: {e}")
+            raise SystemExit(1)
+
+        try:
+            validated = model_class.model_validate_json(raw)
+        except ValidationError as e:
+            print(f"Invalid task file {task_file}: {e}")
+            raise SystemExit(1)
+
+        return validated.model_dump()
+
+    def save_output(self, output_path: str, payload: SolutionOutput) -> None:
         """Serialize the final agent output to JSON."""
         try:
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
             with open(output_path, "w") as f:
-                json.dump(payload, f, indent=2)
+                json.dump(payload.model_dump(), f, indent=2)
 
         except Exception as e:
             print(f"Error saving output to {output_path}: {e}")

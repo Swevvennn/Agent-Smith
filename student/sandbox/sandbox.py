@@ -2,8 +2,7 @@ import multiprocessing
 import resource
 import builtins
 import socket
-
-from sandbox.sandbox_config import SandboxConfig, load_config
+from sandbox.sandbox_config import SandboxConfig
 
 
 def _is_path_allowed(path: str, allowed_directories: list[str]) -> bool:
@@ -173,38 +172,5 @@ def run_code(
     result["final_answer"] = final_value
     result["timed_out"] = False
     return result
+# EOF
 
-
-# if __name__ == "__main__":
-#     config = load_config()
-
-#     print("--- Test 1: code valide ---")
-#     print(run_code("print('hello'); import math; print(math.sqrt(16))", config))
-
-#     print("\n--- Test 2: import interdit ---")
-#     print(run_code("import os", config))
-
-#     print("\n--- Test 3: final_answer ---")
-#     print(run_code("result = 2 + 2\nfinal_answer(result)", config))
-
-#     print("\n--- Test 4: timeout ---")
-#     fast_config = SandboxConfig(max_execution_time_seconds=2)
-#     print(run_code("while True: pass", fast_config))
-
-#     print("\n--- Test 5: accès réseau bloqué ---")
-#     print(run_code("import socket; s = socket.socket()", config))
-
-#     print("\n--- Test 6: accès fichier hors zone autorisée ---")
-#     print(run_code("open('/etc/passwd', 'r')", config))
-
-#     print("\n--- Test 7: appel d'un outil MCP (run_tests) depuis le sandbox ---")
-#     code_with_mcp = """
-# result = run_tests(
-#     solution_code="def add(a, b):\\n    return a + b",
-#     test_list=["assert add(2, 3) == 5"],
-#     test_imports=[]
-# )
-# print(result)
-# final_answer("def add(a, b):\\n    return a + b")
-# """
-#     print(run_code(code_with_mcp, config, mcp_command="python3", mcp_args=["mcp_tools_mbpp.py"]))
