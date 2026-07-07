@@ -10,38 +10,12 @@ from pathlib import Path
 from agent.extract_code import extract_code
 from sandbox.sandbox import run_code
 from sandbox.sandbox_config import SandboxConfig
+from client_mcp.bridge import SyncMCPClient
+from agent.build_manual import build_sandbox_manual
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 MCP_COMMAND_MBPP = f"python3 {REPO_ROOT / 'mcp_tools_mbpp.py'}"
 
-SYSTEM_PROMPT_MBPP = """You are a coding agent that solves Python problems (MBPP).
-
-You work in a loop: you write ONE Python code block, it runs in a sandbox,
-and you see the result. Then you write the next block, and so on.
-
-AVAILABLE TOOLS (call them like normal Python functions):
-- run_tests(solution_code, test_list): runs the given tests against your
-  solution. Returns {"passed": bool, "message": str}. Use it to CHECK your
-  work before finishing.
-- final_answer(solution_code): call this ONLY once your solution passes the
-  tests. Pass the full function code as a string.
-
-RULES:
-- Always write your code between ```python and ```
-- First write your solution, test it with run_tests, and only call
-  final_answer when the tests pass.
-
-EXAMPLE:
-```python
-solution = "def add(a, b):\\n    return a + b"
-result = run_tests(solution_code=solution, test_list=["assert add(2, 3) == 5"])
-print(result)
-```
-Then, once tests pass:
-```python
-final_answer("def add(a, b):\\n    return a + b")
-```
-"""
 
 class CLI:
     """Command-line entry point for the agentic framework."""
@@ -84,6 +58,16 @@ class CLI:
         self.mcp_server = args.mcp_server
         return args
 
+    def _resolve_mcp_connection(
+        self,
+        default_stdio_target: Optional[str] = None,
+    ) -> tuple[str, Optional[str]]:
+        if self.mcp_server:
+            return "http", self.mcp_server
+        if self.mcp_stdio:
+            return "stdio", self.mcp_stdio
+        return "stdio", default_stdio_target
+
     def run(self, argv: Optional[list[str]] = None) -> int:
         """Dispatch to the requested benchmark or sandbox mode."""
         args = self.parse_args(argv)
@@ -99,6 +83,7 @@ class CLI:
     def run_sandbox(self, sandbox_config: Optional[str] = None) -> int:
         """Launch the interactive sandbox REPL."""
         config = SandboxConfig()
+        mcp_transport, mcp_target = self._resolve_mcp_connection()
         print("Sandbox loaded!")
         while True:
             try:
@@ -107,7 +92,12 @@ class CLI:
                 if user.strip().lower() in ["exit", "quit"]:
                     print("Exiting sandbox...")
                     break
-                result = run_code(user, config, mcp_command=self.mcp_stdio or self.mcp_server)
+                result = run_code(
+                    user,
+                    config,
+                    mcp_transport=mcp_transport,
+                    mcp_target=mcp_target,
+                )
 
                 if result.get("timed_out"):
                     print(f"Timeout: {result['output']}")
@@ -115,10 +105,13 @@ class CLI:
 
                 if result.get("final_answer") is not None:
                     print(f"Final answer: {result['final_answer']}")
-                
+
                 print(f"Ouput: {result.get('output')}")
             except KeyboardInterrupt:
-                print(f"Exit (ctrl+c)")
+                print("Exit (CTRL+C)")
+                break
+            except EOFError:
+                print("Exit (CTRL+D)")
                 break
             except Exception as e:
                 print(f"An error occured: {e}")
@@ -133,7 +126,37 @@ class CLI:
             base_url=args.provider_url,
             api_key=os.getenv("OPEN_ROUTER_API_KEY")
         )
-        system_prompt = SYSTEM_PROMPT_MBPP
+        mcp_transport, mcp_target = self._resolve_mcp_connection(MCP_COMMAND_MBPP)
+        if mcp_transport == "http":
+            mcp_client = SyncMCPClient(mcp_type="http", url=mcp_target or "")
+        else:
+            mcp_client = SyncMCPClient(command=mcp_target or MCP_COMMAND_MBPP, mcp_type="stdio")
+        manual = build_sandbox_manual(mcp_client.list_tools())
+        mcp_client.close()
+        system_prompt = f"""You are a coding agent that solves Python problems (MBPP).
+
+You work in a loop: you write ONE Python code block, it runs in a sandbox,
+and you see the result. Then you write the next block, and so on.
+
+{manual}
+
+RULES:
+Before writing code, briefly explain your reasoning (Thought), then write the code block.
+- Always write your code between ```python and ```
+- First write your solution, test it with run_tests, and only call
+final_answer when the tests pass.
+
+EXAMPLE:
+```python
+solution = "def add(a, b):\\n    return a + b"
+result = run_tests(solution_code=solution, test_list=["assert add(2, 3) == 5"])
+print(result)
+```
+Then, once tests pass:
+```python
+final_answer("def add(a, b):\\n    return a + b")
+```
+"""
         config = SandboxConfig()
         messages = [
             {"role": "system", "content": system_prompt},
@@ -159,7 +182,12 @@ class CLI:
                 messages.append({"role": "user", "content": observation})
                 continue
 
-            result = run_code(code, config, mcp_command=MCP_COMMAND_MBPP)
+            result = run_code(
+                code,
+                config,
+                mcp_transport=mcp_transport,
+                mcp_target=mcp_target,
+            )
             observation = result["output"]
             print("Observation:", observation)
 

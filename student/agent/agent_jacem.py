@@ -97,7 +97,12 @@ def main():
             messages.append({"role": "user", "content": observation})
             continue
 
-        result = run_code(code, config, mcp_command=MCP_COMMAND)
+        result = run_code(
+            code,
+            config,
+            mcp_transport="stdio",
+            mcp_target=MCP_COMMAND,
+        )
         observation = result["output"]
         print("Observation:", observation)
 

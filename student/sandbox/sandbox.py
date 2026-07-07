@@ -47,8 +47,15 @@ def _block_network(*args, **kwargs):
     raise PermissionError("Network access is not allowed in sandbox")
 
 
-def _run_in_subprocess(code: str, config: SandboxConfig, result_queue, answer_queue,
-                        mcp_command: str | None = None, mcp_args: list[str] | None = None):
+def _run_in_subprocess(
+    code: str,
+    config: SandboxConfig,
+    result_queue,
+    answer_queue,
+    mcp_transport: str = "stdio",
+    mcp_target: str | None = None,
+    mcp_args: list[str] | None = None,
+):
 
     max_bytes = config.max_memory_mb * 1024 * 1024
     try:
@@ -57,9 +64,13 @@ def _run_in_subprocess(code: str, config: SandboxConfig, result_queue, answer_qu
         pass
     mcp_client = None
     tool_wrappers = {}
-    if mcp_command is not None:
+    if mcp_target is not None:
         from client_mcp.bridge import SyncMCPClient, make_wrappers_tools
-        mcp_client = SyncMCPClient(command=mcp_command, mcp_type="stdio")
+
+        if mcp_transport == "http":
+            mcp_client = SyncMCPClient(mcp_type="http", url=mcp_target)
+        else:
+            mcp_client = SyncMCPClient(command=mcp_target, mcp_type="stdio")
         tool_wrappers = make_wrappers_tools(mcp_client)
 
     socket.socket = _block_network
@@ -116,8 +127,13 @@ def _run_in_subprocess(code: str, config: SandboxConfig, result_queue, answer_qu
     answer_queue.put(final_answer_holder["value"])
 
 
-def run_code(code: str, config: SandboxConfig | None = None,
-             mcp_command: str | None = None, mcp_args: list[str] | None = None) -> dict:
+def run_code(
+    code: str,
+    config: SandboxConfig | None = None,
+    mcp_transport: str = "stdio",
+    mcp_target: str | None = None,
+    mcp_args: list[str] | None = None,
+) -> dict:
     if config is None:
         config = SandboxConfig()
 
@@ -126,7 +142,15 @@ def run_code(code: str, config: SandboxConfig | None = None,
 
     process = multiprocessing.Process(
         target=_run_in_subprocess,
-        args=(code, config, result_queue, answer_queue, mcp_command, mcp_args),
+        args=(
+            code,
+            config,
+            result_queue,
+            answer_queue,
+            mcp_transport,
+            mcp_target,
+            mcp_args,
+        ),
     )
     process.start()
     process.join(timeout=config.max_execution_time_seconds)
