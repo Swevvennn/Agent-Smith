@@ -347,6 +347,8 @@ class CLI:
         output_path = args.output or "../cache/mbpp_solution.json"
         self.save_output(output_path, solution)
         print(f"\nSolution saved to {output_path}")
+
+        return 0 if solution.success else 1
         
 
     def load_task(self, task_file: str) -> dict[str, Any]:
