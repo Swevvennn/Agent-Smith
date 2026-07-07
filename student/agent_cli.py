@@ -191,10 +191,10 @@ class CLI:
     ## Function signature
     {task["function_definition"]}
 
-    ## Official test imports
+    ## test imports
     {test_imports}
 
-    ## Official tests
+    ## tests
     {test_list}
 
     Instructions:
@@ -272,7 +272,82 @@ class CLI:
 
     def run_swebench_agent(self, args: Any) -> int:
         """Run the SWE-bench agent loop and write the solution output."""
-        pass
+        task = self.load_task(args.task_file)
+        load_dotenv()
+        client = OpenAI(
+            base_url=args.provider_url,
+            api_key=os.getenv("OPEN_ROUTER_API_KEY")
+        )
+        mcp_transport, mcp_target = self._resolve_mcp_connection(MCP_COMMAND_MBPP)
+        if mcp_transport == "http":
+            mcp_client = SyncMCPClient(mcp_type="http", url=mcp_target or "")
+        else:
+            mcp_client = SyncMCPClient(command=mcp_target or MCP_COMMAND_MBPP, mcp_type="stdio")
+        manual = build_sandbox_manual(mcp_client.list_tools())
+        mcp_client.close()
+        system_prompt = """"""
+        final_solution = None
+        for step in range(args.max_iterations):
+            print(f"\n===== ITERATION {step + 1} =====")
+
+            # a. Ask the LLM
+            try:
+                response = client.chat.completions.create(
+                    model=args.model_name or "mistral-small-latest",
+                    messages=messages,
+                )
+            except Exception as e:
+                print(f"LLM call failed: {e}")
+                break
+            llm_text = response.choices[0].message.content
+            print("LLM said:\n", llm_text)
+
+            code = extract_code(llm_text)
+            if code is None:
+                observation = (
+                    "No valid code block found. "
+                    "Write exactly one ```python block."
+                )
+                print("Observation:", observation)
+                messages.append({"role": "assistant", "content": llm_text})
+                messages.append({"role": "user", "content": observation})
+                continue
+
+            result = run_code(
+                code,
+                config,
+                mcp_transport=mcp_transport,
+                mcp_target=mcp_target,
+            )
+            observation = result["output"]
+            print("Observation:", observation)
+
+            if result["final_answer"] is not None:
+                final_solution = result["final_answer"]
+                print("\n>>> final_answer received! Solution:")
+                print(final_solution)
+                break
+
+            messages.append({"role": "assistant", "content": llm_text})
+            messages.append({"role": "user", "content": f"Execution result:\n{observation}"})
+
+        solution = SolutionOutput(
+            task_id=str(task["task_id"]),
+            benchmark="mbpp",
+            success=final_solution is not None,
+            solution=final_solution or "",
+            system_prompt=system_prompt,
+            iterations=step,
+            total_requests=0,
+            total_input_tokens=0,
+            total_output_tokens=0,
+            total_time_seconds=0,
+            step=[]
+        )
+        output_path = args.output or "../cache/mbpp_solution.json"
+        self.save_output(output_path, solution)
+        print(f"\nSolution saved to {output_path}")
+        
 
     def load_task(self, task_file: str) -> dict[str, Any]:
         """Load a benchmark task description from disk."""
