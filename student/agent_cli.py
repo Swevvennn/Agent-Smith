@@ -5,12 +5,14 @@ import os
 from typing import Any, Optional
 from openai import OpenAI
 from dotenv import load_dotenv
+from pathlib import Path
 
 from agent.extract_code import extract_code
 from sandbox.sandbox import run_code
 from sandbox.sandbox_config import SandboxConfig
 
-MCP_COMMAND_MBPP = "python3 mcp_tools_mbpp.py"
+REPO_ROOT = Path(__file__).resolve().parent.parent
+MCP_COMMAND_MBPP = f"python3 {REPO_ROOT / 'mcp_tools_mbpp.py'}"
 
 SYSTEM_PROMPT_MBPP = """You are a coding agent that solves Python problems (MBPP).
 

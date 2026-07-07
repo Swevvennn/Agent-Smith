@@ -1,4 +1,12 @@
-venv
-.venv
+
+.venv/
+venv/
 .env
-__pycache__
+
+__pycache__/
+*.pyc
+*.pyo
+
+.uv-cache/
+cache/*.json
+!cache/.gitkeep

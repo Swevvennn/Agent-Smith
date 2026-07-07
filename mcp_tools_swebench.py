@@ -1,6 +1,6 @@
 import sys
 from mcp.server.fastmcp import FastMCP
-from client_mcp.server.tools_SWE_bench import tools_kit
+from student.client_mcp.server.tools_SWE_bench import tools_kit
 
 mcp = FastMCP("swebench_tools")
 tools_kit(mcp)
