@@ -10,15 +10,18 @@ from pathlib import Path
 from pydantic import ValidationError
 
 from agent.extract_code import extract_code
-from sandbox.sandbox import run_code
-from sandbox.sandbox_config import SandboxConfig
-from client_mcp.bridge import SyncMCPClient
 from agent.build_manual import build_sandbox_manual
 from agent.model import MBPPTaskInput, SWEBenchTaskInput, SolutionOutput, StepMetrics
 from agent.provider.api_management import call_with_key_rotation
+from agent import prompt
+from sandbox.sandbox import run_code
+from sandbox.sandbox_config import SandboxConfig
+from client_mcp.bridge import SyncMCPClient
+
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 MCP_COMMAND_MBPP = f"python3 {REPO_ROOT / 'mcp_tools_mbpp.py'}"
+MCP_COMMAND_SWEBENCH = f"python3 {REPO_ROOT / 'mcp_tools_swebench.py'}"
 
 
 class CLI:
@@ -136,79 +139,9 @@ class CLI:
             mcp_client = SyncMCPClient(command=mcp_target or MCP_COMMAND_MBPP, mcp_type="stdio")
         manual = build_sandbox_manual(mcp_client.list_tools())
         mcp_client.close()
-        system_prompt = f"""You are a coding agent for MBPP.
-
-    Your job is to solve the task by iterating through a strict loop:
-    Thought -> Code -> Observation.
-
-    You must reply in this format:
-    Thought: brief reasoning in plain text.
-    Code:
-    ```python
-    # one executable Python block only
-    ```
-
-    Only the Python block will be executed. Do not write multiple code blocks.
-    Do not answer with prose only.
-
-    {manual}
-
-    Rules:
-    - Prefer small, testable changes.
-    - Use the available MCP tools as normal Python functions.
-    - First build the solution, then test it with run_tests.
-    - IMPORTANT: as soon as run_tests returns {{"passed": true}}, you MUST
-      call final_answer in the VERY NEXT code block. Do not repeat the
-      solution, do not re-test. Just call final_answer.
-    - final_answer must be lowercase and inside a ```python block, like:
-      ```python
-      final_answer("def add(a, b):\\n    return a + b")
-      ```
-    - If execution fails, inspect the observation and adapt the next code block.
-    - If no valid code block is produced, rewrite with exactly one ```python block.
-    - If a block is malformed, fix it in the next turn.
-    - If the sandbox reports a timeout, partial output, or an error, use that
-      observation directly and do not guess what happened.
-
-    Example:
-    Thought: I will write the function and verify it with the provided tests.
-    Code:
-    ```python
-    solution = "def add(a, b):\\n    return a + b"
-    result = run_tests(solution_code=solution, test_list=["assert add(2, 3) == 5"])
-    print(result)
-    ```
-
-    When tests pass:
-    Thought: The solution is validated, so I can finish.
-    Code:
-    ```python
-    final_answer("def add(a, b):\\n    return a + b")
-    ```
-    """
+        system_prompt = prompt.build_system_prompt_mbpp(manual)
         config = SandboxConfig()
-        test_imports = "\n".join(task["test_imports"]) or "None"
-        test_list = "\n".join(task["test_list"]) or "None"
-        user_prompt = f"""
-    Solve the following MBPP task.
-
-    ## Task
-    {task["task_definition"]}
-
-    ## Function signature
-    {task["function_definition"]}
-
-    ## test imports
-    {test_imports}
-
-    ## tests
-    {test_list}
-
-    Instructions:
-    - Implement exactly the requested function.
-    - Respect the function signature.
-    - Only call `final_answer(...)` after `run_tests` reports success.
-    """
+        user_prompt = prompt.build_user_prompt_mbpp(task)
         messages = [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
@@ -335,21 +268,133 @@ class CLI:
         """
         task = self.load_task(args.task_file)
         load_dotenv()
-        client = OpenAI(
-            base_url=args.provider_url,
-            api_key=os.getenv("OPEN_ROUTER_API_KEY")
-        )
-        mcp_transport, mcp_target = self._resolve_mcp_connection(MCP_COMMAND_MBPP)
+        raw_keys = os.getenv("OPEN_ROUTER_API_KEY", "")
+        api_keys = [k.strip() for k in raw_keys.split(",") if k.strip()]
+        provider_url = args.provider_url
+        mcp_transport, mcp_target = self._resolve_mcp_connection(MCP_COMMAND_SWEBENCH)
         if mcp_transport == "http":
             mcp_client = SyncMCPClient(mcp_type="http", url=mcp_target or "")
         else:
-            mcp_client = SyncMCPClient(command=mcp_target or MCP_COMMAND_MBPP, mcp_type="stdio")
+            mcp_client = SyncMCPClient(command=mcp_target or MCP_COMMAND_SWEBENCH, mcp_type="stdio")
         manual = build_sandbox_manual(mcp_client.list_tools())
         mcp_client.close()
 
-        # TODO: implement the SWE-bench agent loop (with Docker handling).
-        print("SWE-bench agent loop not implemented yet.")
-        return 1
+        system_prompt = prompt.build_system_prompt_swebench(manual)
+        config = SandboxConfig()
+        user_prompt = prompt.build_user_prompt_swebench(task)
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ]
+        final_solution = None
+        total_input_tokens = 0
+        total_output_tokens = 0
+        total_requests = 0
+        start_time = time.time()
+        steps = []
+        for step in range(args.max_iterations):
+            print(f"\n===== ITERATION {step + 1} =====")
+
+            if time.time() - start_time > 900:
+                print("Global timeout (900s) reached, stopping.")
+                break
+
+            request_start = time.time()
+            try:
+                def make_call(key):
+                    client = OpenAI(base_url=provider_url, api_key=key)
+                    return client.chat.completions.create(
+                        model=args.model_name or "mistral-small-latest",
+                        messages=messages,
+                    )
+                response = call_with_key_rotation(make_call, api_keys)
+            except Exception as e:
+                print(f"LLM call failed: {e}")
+                break
+            request_time_ms = (time.time() - request_start) * 1000
+            llm_text = response.choices[0].message.content
+            print("LLM said:\n", llm_text)
+
+            total_requests += 1
+            total_input_tokens += response.usage.prompt_tokens
+            total_output_tokens += response.usage.completion_tokens
+
+            if total_input_tokens > 300000 or total_output_tokens > 10000:
+                print("Token limit exceeded, stopping.")
+                break
+
+            code = extract_code(llm_text)
+            if code is None:
+                observation = (
+                    "No valid code block found. "
+                    "Write exactly one ```python block."
+                )
+                print("Observation:", observation)
+                steps.append(StepMetrics(
+                    step=step + 1,
+                    input_tokens=response.usage.prompt_tokens,
+                    output_tokens=response.usage.completion_tokens,
+                    request_time_ms=request_time_ms,
+                    api_url=args.provider_url or "",
+                    model_name=args.model_name or "mistral-small-latest",
+                    llm_output=llm_text,
+                    sandbox_input="",
+                    sandbox_output=observation,
+                    retries=0,
+                ))
+                messages.append({"role": "assistant", "content": llm_text})
+                messages.append({"role": "user", "content": observation})
+                continue
+
+            result = run_code(
+                code,
+                config,
+                mcp_transport=mcp_transport,
+                mcp_target=mcp_target,
+            )
+            observation = result["output"]
+            print("Observation:", observation)
+
+            steps.append(StepMetrics(
+                step=step + 1,
+                input_tokens=response.usage.prompt_tokens,
+                output_tokens=response.usage.completion_tokens,
+                request_time_ms=request_time_ms,
+                api_url=args.provider_url or "",
+                model_name=args.model_name or "mistral-small-latest",
+                llm_output=llm_text,
+                sandbox_input=code,
+                sandbox_output=observation,
+                retries=0,
+            ))
+
+            if result["final_answer"] is not None:
+                final_solution = result["final_answer"]
+                print("\n>>> final_answer received! Solution:")
+                print(final_solution)
+                break
+
+            messages.append({"role": "assistant", "content": llm_text})
+            messages.append({"role": "user", "content": f"Execution result:\n{observation}"})
+
+        solution = SolutionOutput(
+            task_id=str(task["task_id"]),
+            benchmark="swebench",
+            success=final_solution is not None,
+            solution=final_solution or "",
+            system_prompt=system_prompt,
+            iterations=step + 1,
+            total_requests=total_requests,
+            total_input_tokens=total_input_tokens,
+            total_output_tokens=total_output_tokens,
+            total_time_seconds=time.time() - start_time,
+            steps=steps,
+        )
+        output_path = args.output or "../cache/swebench_solution.json"
+        self.save_output(output_path, solution)
+        print(f"\nSolution saved to {output_path}")
+
+        return 0 if solution.success else 1
 
     def load_task(self, task_file: str) -> dict[str, Any]:
         """Load a benchmark task description from disk."""
@@ -378,7 +423,9 @@ class CLI:
     def save_output(self, output_path: str, payload: SolutionOutput) -> None:
         """Serialize the final agent output to JSON."""
         try:
-            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            directory = os.path.dirname(output_path)
+            if directory:
+                os.makedirs(directory, exist_ok=True)
 
             with open(output_path, "w") as f:
                 json.dump(payload.model_dump(), f, indent=2)

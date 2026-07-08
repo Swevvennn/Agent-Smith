@@ -12,7 +12,7 @@ dependencies = [
 ]
 
 [project.scripts]
-sandbox = "student.sandbox.cli:main"
+sandbox = "student.sandbox_entrypoint:main"
 
 [build-system]
 requires = ["hatchling"]

@@ -1,105 +1,125 @@
-from pathlib import Path
-from typing import Dict, List, Any
 import subprocess
 import fnmatch
 import re
 
+from pathlib import Path
+from typing import Dict, Any, Optional
 
-## MESSAGE D'ERREUR A REVOIR ICI POUR LES TOOLS KIT J'ATTEND D'AVANCER UN PEU POUR VOIR LEQUEL SERAIT LE MIEUX
 
 def tools_kit(mcp):
     # Files system
     @mcp.tool()
-    def read_file(filepath: str, start_line: int = None,
-                  end_line: int = None) -> List[str]:
+    def read_file(
+        filepath: str,
+        start_line: Optional[int] = None,
+        end_line: Optional[int] = None,
+    ) -> Dict[str, Any]:
         """
-        Read the content of a file with line numbers
+        Read the content of a file with line numbers.
+        Returns a dict with 'success' and 'result' or 'error'.
         """
-        result = []
         if not Path(filepath).exists():
-            return f"ERROR: file not found: {filepath}"
+            return {"success": False, "error": f"File not found: {filepath}"}
         try:
+            result = []
             with open(filepath, "r") as file:
                 for i, line in enumerate(file, start=1):
                     if start_line is not None and i < start_line:
                         continue
-
                     if end_line is not None and i > end_line:
                         break
-
                     result.append(f"{i}: {line.rstrip()}")
-            return result
-        except Exception:
-            return f"ERROR: '{filepath}'"
+            return {"success": True, "result": result}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
 
     @mcp.tool()
-    def edit_file(filepath: str, old_str: str, new_str: str) -> None:
+    def edit_file(filepath: str, old_str: str, new_str: str) -> Dict[str, Any]:
         """
-        Replace an exact string in a file with a new string
+        Replace an exact string in a file with a new string.
+        Returns a dict with 'success' and 'result' or 'error'.
         """
         try:
             with open(filepath, "r") as file:
                 content = file.read()
 
             occurrences = content.count(old_str)
-            if occurrences > 1:
-                return f"ERROR: old_str appears {occurrences} times"
             if occurrences == 0:
-                return f"ERROR: old_str appears {occurrences} times"
+                return {
+                    "success": False,
+                    "error": f"Pattern not found in {filepath}",
+                }
+            if occurrences > 1:
+                return {
+                    "success": False,
+                    "error": (
+                        f"Pattern appears {occurrences} times; "
+                        "be more specific"
+                    ),
+                }
             new_content = content.replace(old_str, new_str, 1)
-
             with open(filepath, "w") as file:
                 file.write(new_content)
-            return f"SUCESS: old_str has been changed in {file.name} by {new_str}"
+            return {
+                "success": True,
+                "result": f"Successfully replaced in {filepath}",
+            }
         except Exception as e:
-            print(e)
+            return {"success": False, "error": str(e)}
 
     @mcp.tool()
-    def list_files(directory: str, pattern: str) -> List[Path]:
+    def list_files(directory: str, pattern: str) -> Dict[str, Any]:
         """
-        List files in a directory matching a given pattern
+        List files in a directory matching a given pattern.
+        Returns a dict with 'success' and 'result' or 'error'.
         """
         try:
             root = Path(directory)
-
-            if root.exists():
-
-                files = [
-                    file
-                    for file in root.rglob("*")
-                    if fnmatch.fnmatch(file.name, pattern)
-                    ]
-                print(files)
-                return files
+            if not root.exists():
+                return {
+                    "success": False,
+                    "error": f"Directory not found: {directory}",
+                }
+            files = [
+                str(file)
+                for file in root.rglob("*")
+                if fnmatch.fnmatch(file.name, pattern)
+            ]
+            return {"success": True, "result": files}
         except Exception as e:
-            print(e)
+            return {"success": False, "error": str(e)}
 
     # Code search
     @mcp.tool()
-    def search_code(pattern: str, file_pattern: str) -> List[str]:
+    def search_code(pattern: str, file_pattern: str) -> Dict[str, Any]:
         """
-        Perform a grep-like search in the codebase
+        Perform a grep-like search in the codebase.
+        Returns a dict with 'success' and 'result' or 'error'.
         """
         result = []
         try:
             for file in Path("/testbed").rglob(file_pattern):
                 if not file.is_file():
                     continue
-
                 with open(file, "r") as f:
                     for i, line in enumerate(f, start=1):
                         if pattern in line:
                             result.append(
-                                f"{file.resolve()}:{i} {line.rstrip()}")
-            return "\n".join(result)
+                                f"{file.resolve()}:{i} {line.rstrip()}"
+                            )
+            if not result:
+                return {"success": True, "result": []}
+            return {"success": True, "result": result}
         except Exception as e:
-            print(e)
+            return {"success": False, "error": str(e)}
 
     @mcp.tool()
-    def search_function_or_class_definition_in_code(name: str
-                                                    ) -> List[str]:
+    def search_function_or_class_definition_in_code(
+        name: str,
+    ) -> Dict[str, Any]:
         """
-        Find the definition of a function or a class
+        Find the definition of a function or a class.
+        Returns a dict with 'success' and 'result' or 'error'.
         """
         result = []
         def_re = re.compile(rf"^\s*(def|class)\s+{name}[(:]")
@@ -107,105 +127,143 @@ def tools_kit(mcp):
             for file in Path("/testbed").rglob("*.py"):
                 if not file.is_file():
                     continue
-
                 with open(file, "r") as f:
                     for i, line in enumerate(f, start=1):
                         if def_re.match(line):
                             result.append(
-                                f"{file.resolve()}:{i} {line.rstrip()}")
-            return result
+                                f"{file.resolve()}:{i} {line.rstrip()}"
+                            )
+            return {"success": True, "result": result}
         except Exception as e:
-            print(e)
+            return {"success": False, "error": str(e)}
 
     @mcp.tool()
     def find_references(
-        name: str, filepath: str = "", line: int = 0
-    ) -> Dict[str, Any]:
+            name: str, filepath: str = "", line: str = "") -> Dict[str, Any]:
         """
         Find all usages of a symbol (function or class).
+        Returns a dict with 'success' and 'result' or 'error'.
         """
         result = []
         try:
             for file in Path("/testbed").rglob("*.py"):
                 if not file.is_file():
                     continue
-
                 with open(file, "r") as f:
                     for i, line in enumerate(f, start=1):
                         if name in line:
                             result.append(
-                                f"{file.resolve()}:{i} {line.rstrip()}")
-            return "\n".join(result)
+                                f"{file.resolve()}:{i} {line.rstrip()}"
+                            )
+            return {"success": True, "result": result}
         except Exception as e:
-            print(e)
+            return {"success": False, "error": str(e)}
 
     # Execution Tools
+    MAX_OUTPUT_CHARS = 20000
+
+    def _truncate(text: str, label: str) -> str:
+        """Truncate output if too long, with a note about what was cut."""
+        if not text:
+            return ""
+        if len(text) <= MAX_OUTPUT_CHARS:
+            return text
+        return (
+            text[:MAX_OUTPUT_CHARS]
+            + f"\n[... {label} truncated: {len(text)} chars total, "
+            f"showing first {MAX_OUTPUT_CHARS} ...]"
+        )
+
     @mcp.tool()
     def run_tests() -> Dict[str, Any]:
         """
         Execute the evaluation script.
+        Returns a dict with 'success' and test results or 'error'.
         """
-        try:
-            if not Path("/eval.sh").exists():
-                return "ERROR: no eval script found"
-            sub = subprocess.run("bash /eval.sh",
-                                 shell=True,
-                                 cwd="/testbed",
-                                 capture_output=True,
-                                 text=True,
-                                 timeout=600
-                                 )
-            result = {
-                "stdout": sub.stdout,
-                "stderr": sub.stderr,
-                "finish": sub.returncode
+        if not Path("/eval.sh").exists():
+            return {
+                "success": False,
+                "error": "No eval script found at /eval.sh",
             }
-            return result
+        try:
+            sub = subprocess.run(
+                "bash /eval.sh",
+                shell=True,
+                cwd="/testbed",
+                capture_output=True,
+                text=True,
+                timeout=600,
+            )
+            return {
+                "success": True,
+                "result": {
+                    "stdout": _truncate(sub.stdout, "stdout"),
+                    "stderr": _truncate(sub.stderr, "stderr"),
+                    "returncode": sub.returncode,
+                },
+            }
+        except subprocess.TimeoutExpired:
+            return {
+                "success": False,
+                "error": "Evaluation script timed out after 600s",
+            }
         except Exception as e:
-            print(e)
+            return {
+                "success": False,
+                "error": f"Could not run evaluation script: {e}",
+            }
 
     @mcp.tool()
-    def get_patch() -> Dict[str, Any]:
+    def get_patch() -> str:
         """
-        Retrieve the unified git diff of all changes made to the repository
+        Retrieve the unified git diff of all changes made to the repository.
         """
         try:
-            sub = subprocess.run("git -c core.fileMode=false diff",
-                                 shell=True,
-                                 cwd="/testbed",
-                                 capture_output=True,
-                                 text=True,
-                                 timeout=600
-                                 )
-            result = {
-                "stdout": sub.stdout,
-                "stderr": sub.stderr,
-                "finish": sub.returncode
-            }
-            return result
+            sub = subprocess.run(
+                "git -c core.fileMode=false diff",
+                shell=True,
+                cwd="/testbed",
+                capture_output=True,
+                text=True,
+                timeout=600,
+            )
+            if sub.returncode != 0:
+                return f"ERROR: git diff failed: {sub.stderr}"
+            return _truncate(sub.stdout, "patch")
+        except subprocess.TimeoutExpired:
+            return "ERROR: git diff timed out after 600s"
         except Exception as e:
-            print(e)
+            return f"ERROR: could not run git diff: {e}"
 
     @mcp.tool()
     def run_command(command: str, workdir: str) -> Dict[str, Any]:
         """
         Execute a shell command in the specified working directory.
+        Returns a dict with 'success' and command results or 'error'.
         """
         try:
             if not Path(workdir).exists():
-                return f"ERROR: file not found: {workdir}"
-            sub = subprocess.run(command,
-                                 shell=True,
-                                 cwd=workdir,
-                                 capture_output=True,
-                                 text=True,
-                                 timeout=600
-                                 )
-            result = {
-                "stdout": sub.stdout,
-                "stderr": sub.stderr,
-                "finish": sub.returncode
+                return {
+                    "success": False,
+                    "error": f"Directory not found: {workdir}",
+                }
+            sub = subprocess.run(
+                command,
+                shell=True,
+                cwd=workdir,
+                capture_output=True,
+                text=True,
+                timeout=600,
+            )
+            return {
+                "success": True,
+                "result": {
+                    "stdout": _truncate(sub.stdout, "stdout"),
+                    "stderr": _truncate(sub.stderr, "stderr"),
+                    "returncode": sub.returncode,
+                },
             }
-            return result
+        except subprocess.TimeoutExpired:
+            return {"success": False, "error": "Command timed out after 600s"}
         except Exception as e:
-            print(e)
+            return {"success": False, "error": str(e)}
