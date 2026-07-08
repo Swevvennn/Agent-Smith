@@ -1,8 +1,9 @@
 import argparse
 import json
 import os
-
 import time
+import sys
+
 from typing import Any, Optional
 from openai import OpenAI
 from dotenv import load_dotenv
@@ -11,7 +12,8 @@ from pydantic import ValidationError
 
 from agent.extract_code import extract_code
 from agent.build_manual import build_sandbox_manual
-from agent.model import MBPPTaskInput, SWEBenchTaskInput, SolutionOutput, StepMetrics
+from agent.model import (MBPPTaskInput,
+                         SWEBenchTaskInput, SolutionOutput, StepMetrics)
 from agent.provider.api_management import call_with_key_rotation
 from agent import prompt
 from sandbox.sandbox import run_code
@@ -50,6 +52,7 @@ class CLI:
         parser.add_argument("--max-iterations", type=int, default=10)
         parser.add_argument("--mcp-stdio")
         parser.add_argument("--mcp-server")
+        parser.add_argument("sandbox_config", nargs="?", default=None, help="Path to sandbox JSON config")
         return parser
 
     def parse_args(self, argv: Optional[list[str]] = None) -> argparse.Namespace:
@@ -63,6 +66,7 @@ class CLI:
         self.max_iterations = args.max_iterations
         self.mcp_stdio = args.mcp_stdio
         self.mcp_server = args.mcp_server
+        self.sandbox_config = args.sandbox_config
         return args
 
     def _resolve_mcp_connection(
@@ -79,17 +83,36 @@ class CLI:
         """Dispatch to the requested benchmark or sandbox mode."""
         args = self.parse_args(argv)
         if self.mode == "sandbox":
-            return self.run_sandbox()
+            return self.run_sandbox(args.sandbox_config)
         elif self.mode == "mbpp":
+            if args.max_iterations == 10:
+                args.max_iterations = 10
             return self.run_mbpp_agent(args)
         elif self.mode == "swebench":
+            if args.max_iterations == 10:
+                args.max_iterations = 30
             return self.run_swebench_agent(args)
         else:
             raise ValueError(f"Unknown mode: {self.mode}")
 
     def run_sandbox(self, sandbox_config: Optional[str] = None) -> int:
         """Launch the interactive sandbox REPL."""
-        config = SandboxConfig()
+        if sandbox_config:
+            config_path = Path(sandbox_config)
+            if not config_path.exists():
+                print(f"Error: The configuration file '{sandbox_config}' does not exist.", file=sys.stderr)
+                return 1
+            try:
+                with open(config_path, "r") as f:
+                    config = SandboxConfig.model_validate_json(f.read())
+            except ValidationError as e:
+                print(f"Error: The configuration file is malformed or invalid.\n{e}", file=sys.stderr)
+                return 1
+            except Exception as e:
+                print(f"Error reading file: {e}", file=sys.stderr)
+                return 1
+        else:
+            config = SandboxConfig()
         mcp_transport, mcp_target = self._resolve_mcp_connection()
         print("Sandbox loaded!")
         while True:
@@ -254,7 +277,7 @@ class CLI:
             total_time_seconds=time.time() - start_time,
             steps=steps,
         )
-        output_path = args.output or "../cache/mbpp_solution.json"
+        output_path = args.output or "cache/mbpp_solution.json"
         self.save_output(output_path, solution)
         print(f"\nSolution saved to {output_path}")
 
@@ -390,7 +413,7 @@ class CLI:
             total_time_seconds=time.time() - start_time,
             steps=steps,
         )
-        output_path = args.output or "../cache/swebench_solution.json"
+        output_path = args.output or "cache/swebench_solution.json"
         self.save_output(output_path, solution)
         print(f"\nSolution saved to {output_path}")
 
@@ -438,3 +461,14 @@ def main(mode: str, argv: Optional[list[str]] = None) -> int:
     """Module entry point for `python -m agent_cli` style execution."""
     cli = CLI(mode)
     return cli.run(argv)
+
+
+## Pour jacem : 
+# - s'occupe du repo sur lequel il agit et essayer de transfere le scrpit eval script a run_tests sans changer la signature
+# - Faire des test du swe bench et finaliser output propre
+# - Probleme sur les timestamp d'iterations mal calculer
+# - Crash test pour enlever tout les traceback (surtout KeyboardInterrupt)
+# - Swebench (agent_cli.py n utilise jamais base_commit. Pour SWE-bench, c est important,
+#     parce que la correction attend souvent que la repo soit evaluee a partir du
+#     commit de base, pas juste sur l etat courant.)
+# - Essaie de tout casser jacem une fois fini je serai dispo demain a 12H 13h laisse moi des commentaire

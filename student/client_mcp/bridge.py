@@ -70,8 +70,6 @@ def parse_tools(tools: Any):
 
 def make_wrapper(syclient: SyncMCPClient, tool_name, param_names):
     def wrapper(*args, **kwargs):
-        # convertit les arguments positionnels en arguments nommés,
-        # dans l'ordre declare par le schema du tool (param_names)
         for name, value in zip(param_names, args):
             kwargs[name] = value
         result = syclient.call_tool(tool_name, kwargs)

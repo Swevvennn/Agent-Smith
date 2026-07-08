@@ -1,6 +1,7 @@
 import subprocess
 import fnmatch
 import re
+import os
 
 from pathlib import Path
 from typing import Dict, Any, Optional
@@ -229,14 +230,9 @@ def tools_kit(mcp):
         Execute the evaluation script.
         Returns a dict with 'success' and test results or 'error'.
         """
-        if not Path("eval.sh").exists():
-            return {
-                "success": False,
-                "error": "No eval script found at /eval.sh",
-            }
         try:
             sub = subprocess.run(
-                "bash /eval.sh",
+                eval_script,
                 shell=True,
                 cwd=str(repo_root()),
                 capture_output=True,
