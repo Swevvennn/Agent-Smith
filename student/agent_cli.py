@@ -463,6 +463,9 @@ def main(mode: str, argv: Optional[list[str]] = None) -> int:
     return cli.run(argv)
 
 # Pour jacem :
+
+# Urgent: Pourvoir lancer le program sans devoir donne l'url de l'api key et le model name ET SURTOUT AMELIORER LEXTRACTEUR DE CODE ( XML ect)
+
 # - SWEBENCH : s'occupe du repo sur lequel il agit et essayer de transfere le scrpit eval script a run_tests sans changer la signature
 
 # - Faire des test du swebench et finaliser output propre

@@ -22,6 +22,7 @@ def build_system_prompt_mbpp(manual):
     - Prefer small, testable changes.
     - Use the available MCP tools as normal Python functions.
     - First build the solution, then test it with run_tests.
+    - These are public test make sure you answer is strong, hidden test can occur
     - IMPORTANT: as soon as run_tests returns {{"passed": true}}, you MUST
       call final_answer in the VERY NEXT code block. Do not repeat the
       solution, do not re-test. Just call final_answer.
@@ -132,7 +133,7 @@ def build_user_prompt_mbpp(task):
     ## test imports
     {test_imports}
 
-    ## tests
+    ## Public tests
     {test_list}
 
     Instructions:
