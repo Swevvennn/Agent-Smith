@@ -2,6 +2,7 @@ import argparse
 import json
 import os
 
+import time
 from typing import Any, Optional
 from openai import OpenAI
 from dotenv import load_dotenv
@@ -13,7 +14,8 @@ from sandbox.sandbox import run_code
 from sandbox.sandbox_config import SandboxConfig
 from client_mcp.bridge import SyncMCPClient
 from agent.build_manual import build_sandbox_manual
-from agent.model import MBPPTaskInput, SWEBenchTaskInput, SolutionOutput
+from agent.model import MBPPTaskInput, SWEBenchTaskInput, SolutionOutput, StepMetrics
+from agent.provider.api_management import call_with_key_rotation
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 MCP_COMMAND_MBPP = f"python3 {REPO_ROOT / 'mcp_tools_mbpp.py'}"
@@ -124,10 +126,9 @@ class CLI:
         """Run the MBPP agent loop and write the solution output."""
         task = self.load_task(args.task_file)
         load_dotenv()
-        client = OpenAI(
-            base_url=args.provider_url,
-            api_key=os.getenv("OPEN_ROUTER_API_KEY")
-        )
+        raw_keys = os.getenv("OPEN_ROUTER_API_KEY", "")
+        api_keys = [k.strip() for k in raw_keys.split(",") if k.strip()]
+        provider_url = args.provider_url
         mcp_transport, mcp_target = self._resolve_mcp_connection(MCP_COMMAND_MBPP)
         if mcp_transport == "http":
             mcp_client = SyncMCPClient(mcp_type="http", url=mcp_target or "")
@@ -156,7 +157,13 @@ class CLI:
     - Prefer small, testable changes.
     - Use the available MCP tools as normal Python functions.
     - First build the solution, then test it with run_tests.
-    - Call final_answer only when the tests pass.
+    - IMPORTANT: as soon as run_tests returns {{"passed": true}}, you MUST
+      call final_answer in the VERY NEXT code block. Do not repeat the
+      solution, do not re-test. Just call final_answer.
+    - final_answer must be lowercase and inside a ```python block, like:
+      ```python
+      final_answer("def add(a, b):\\n    return a + b")
+      ```
     - If execution fails, inspect the observation and adapt the next code block.
     - If no valid code block is produced, rewrite with exactly one ```python block.
     - If a block is malformed, fix it in the next turn.
@@ -207,20 +214,43 @@ class CLI:
             {"role": "user", "content": user_prompt},
         ]
         final_solution = None
+        total_input_tokens = 0
+        total_output_tokens = 0
+        total_requests = 0
+        start_time = time.time()
+        steps = []
         for step in range(args.max_iterations):
             print(f"\n===== ITERATION {step + 1} =====")
 
-            # a. Ask the LLM
+            if time.time() - start_time > 120:
+                print("Global timeout (120s) reached, stopping.")
+                break
+
+            request_start = time.time()
             try:
-                response = client.chat.completions.create(
-                    model=args.model_name or "mistral-small-latest",
-                    messages=messages,
-                )
+                def make_call(key):
+                    client = OpenAI(base_url=provider_url, api_key=key)
+                    return client.chat.completions.create(
+                        model=args.model_name or "mistral-small-latest",
+                        messages=messages,
+                    )
+                response = call_with_key_rotation(make_call, api_keys)
             except Exception as e:
                 print(f"LLM call failed: {e}")
                 break
+            request_time_ms = (time.time() - request_start) * 1000
             llm_text = response.choices[0].message.content
             print("LLM said:\n", llm_text)
+
+            # Count tokens and requests for this step
+            total_requests += 1
+            total_input_tokens += response.usage.prompt_tokens
+            total_output_tokens += response.usage.completion_tokens
+
+            # Stop if we exceed the MBPP hard limits (subject section VI.1.1)
+            if total_input_tokens > 6000 or total_output_tokens > 1500:
+                print("Token limit exceeded, stopping.")
+                break
 
             code = extract_code(llm_text)
             if code is None:
@@ -229,6 +259,19 @@ class CLI:
                     "Write exactly one ```python block."
                 )
                 print("Observation:", observation)
+                # Record this step (no sandbox execution happened)
+                steps.append(StepMetrics(
+                    step=step + 1,
+                    input_tokens=response.usage.prompt_tokens,
+                    output_tokens=response.usage.completion_tokens,
+                    request_time_ms=request_time_ms,
+                    api_url=args.provider_url or "",
+                    model_name=args.model_name or "mistral-small-latest",
+                    llm_output=llm_text,
+                    sandbox_input="",
+                    sandbox_output=observation,
+                    retries=0,
+                ))
                 messages.append({"role": "assistant", "content": llm_text})
                 messages.append({"role": "user", "content": observation})
                 continue
@@ -241,6 +284,20 @@ class CLI:
             )
             observation = result["output"]
             print("Observation:", observation)
+
+            # Record this step (with sandbox execution)
+            steps.append(StepMetrics(
+                step=step + 1,
+                input_tokens=response.usage.prompt_tokens,
+                output_tokens=response.usage.completion_tokens,
+                request_time_ms=request_time_ms,
+                api_url=args.provider_url or "",
+                model_name=args.model_name or "mistral-small-latest",
+                llm_output=llm_text,
+                sandbox_input=code,
+                sandbox_output=observation,
+                retries=0,
+            ))
 
             if result["final_answer"] is not None:
                 final_solution = result["final_answer"]
@@ -257,12 +314,12 @@ class CLI:
             success=final_solution is not None,
             solution=final_solution or "",
             system_prompt=system_prompt,
-            iterations=step,
-            total_requests=0,
-            total_input_tokens=0,
-            total_output_tokens=0,
-            total_time_seconds=0,
-            step=[]
+            iterations=step + 1,
+            total_requests=total_requests,
+            total_input_tokens=total_input_tokens,
+            total_output_tokens=total_output_tokens,
+            total_time_seconds=time.time() - start_time,
+            steps=steps,
         )
         output_path = args.output or "../cache/mbpp_solution.json"
         self.save_output(output_path, solution)
@@ -271,7 +328,11 @@ class CLI:
         return 0 if solution.success else 1
 
     def run_swebench_agent(self, args: Any) -> int:
-        """Run the SWE-bench agent loop and write the solution output."""
+        """Run the SWE-bench agent loop and write the solution output.
+
+        The MCP connection / task loading setup is kept here. The main
+        agent loop (with Docker handling) is still TODO.
+        """
         task = self.load_task(args.task_file)
         load_dotenv()
         client = OpenAI(
@@ -285,71 +346,10 @@ class CLI:
             mcp_client = SyncMCPClient(command=mcp_target or MCP_COMMAND_MBPP, mcp_type="stdio")
         manual = build_sandbox_manual(mcp_client.list_tools())
         mcp_client.close()
-        system_prompt = """"""
-        final_solution = None
-        for step in range(args.max_iterations):
-            print(f"\n===== ITERATION {step + 1} =====")
 
-            # a. Ask the LLM
-            try:
-                response = client.chat.completions.create(
-                    model=args.model_name or "mistral-small-latest",
-                    messages=messages,
-                )
-            except Exception as e:
-                print(f"LLM call failed: {e}")
-                break
-            llm_text = response.choices[0].message.content
-            print("LLM said:\n", llm_text)
-
-            code = extract_code(llm_text)
-            if code is None:
-                observation = (
-                    "No valid code block found. "
-                    "Write exactly one ```python block."
-                )
-                print("Observation:", observation)
-                messages.append({"role": "assistant", "content": llm_text})
-                messages.append({"role": "user", "content": observation})
-                continue
-
-            result = run_code(
-                code,
-                config,
-                mcp_transport=mcp_transport,
-                mcp_target=mcp_target,
-            )
-            observation = result["output"]
-            print("Observation:", observation)
-
-            if result["final_answer"] is not None:
-                final_solution = result["final_answer"]
-                print("\n>>> final_answer received! Solution:")
-                print(final_solution)
-                break
-
-            messages.append({"role": "assistant", "content": llm_text})
-            messages.append({"role": "user", "content": f"Execution result:\n{observation}"})
-
-        solution = SolutionOutput(
-            task_id=str(task["task_id"]),
-            benchmark="mbpp",
-            success=final_solution is not None,
-            solution=final_solution or "",
-            system_prompt=system_prompt,
-            iterations=step,
-            total_requests=0,
-            total_input_tokens=0,
-            total_output_tokens=0,
-            total_time_seconds=0,
-            step=[]
-        )
-        output_path = args.output or "../cache/mbpp_solution.json"
-        self.save_output(output_path, solution)
-        print(f"\nSolution saved to {output_path}")
-
-        return 0 if solution.success else 1
-        
+        # TODO: implement the SWE-bench agent loop (with Docker handling).
+        print("SWE-bench agent loop not implemented yet.")
+        return 1
 
     def load_task(self, task_file: str) -> dict[str, Any]:
         """Load a benchmark task description from disk."""

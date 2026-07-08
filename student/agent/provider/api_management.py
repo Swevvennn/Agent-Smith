@@ -49,3 +49,18 @@ def get_provider(name: str) -> Provider:
             f"Unknown provider '{name}'."
         )
     return PROVIDERS[name]
+
+
+def call_with_key_rotation(create_fn, api_keys: list[str]):
+    if not api_keys:
+        raise ValueError("No API key available.")
+
+    last_error = None
+    for index, key in enumerate(api_keys):
+        try:
+            return create_fn(key)
+        except Exception as error:
+            last_error = error
+            print(f"API key #{index + 1} failed ({error}); trying next key...")
+
+    raise last_error
