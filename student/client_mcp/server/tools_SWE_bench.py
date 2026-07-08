@@ -5,6 +5,48 @@ import re
 from pathlib import Path
 from typing import Dict, Any, Optional
 
+REPO_ROOT = Path.cwd() / "testbed"
+
+
+def repo_root():
+    candidates = [
+        Path("/testbed"),
+        Path.cwd() / "testbed",
+        Path.cwd(),
+    ]
+
+    for path in candidates:
+        if path.exists() and (path / ".git").exists():
+            return path
+
+    for path in candidates:
+        if path.exists():
+            return path
+
+    return Path.cwd()
+
+
+def get_real_path(requested_path: str) -> Path:
+    request = Path(requested_path)
+
+    if (
+        request.parts
+        and len(request.parts) > 1
+        and request.parts[0] == '/'
+        and request.parts[1] == 'testbed'
+    ):
+        rel_path = request.relative_to('/testbed')
+        return (repo_root() / rel_path).resolve()
+    return (repo_root() / requested_path).resolve()
+
+
+def get_virtual_path(real_path: Path) -> str:
+    try:
+        rel = real_path.resolve().relative_to(repo_root().resolve())
+        return f"/testbed/{rel}"
+    except ValueError:
+        return str(real_path)
+
 
 def tools_kit(mcp):
     # Files system
@@ -18,11 +60,12 @@ def tools_kit(mcp):
         Read the content of a file with line numbers.
         Returns a dict with 'success' and 'result' or 'error'.
         """
-        if not Path(filepath).exists():
+        real_filepath = get_real_path(filepath)
+        if not real_filepath.exists():
             return {"success": False, "error": f"File not found: {filepath}"}
         try:
             result = []
-            with open(filepath, "r") as file:
+            with open(real_filepath, "r") as file:
                 for i, line in enumerate(file, start=1):
                     if start_line is not None and i < start_line:
                         continue
@@ -40,7 +83,8 @@ def tools_kit(mcp):
         Returns a dict with 'success' and 'result' or 'error'.
         """
         try:
-            with open(filepath, "r") as file:
+            real_filepath = get_real_path(filepath)
+            with open(real_filepath, "r") as file:
                 content = file.read()
 
             occurrences = content.count(old_str)
@@ -58,7 +102,7 @@ def tools_kit(mcp):
                     ),
                 }
             new_content = content.replace(old_str, new_str, 1)
-            with open(filepath, "w") as file:
+            with open(real_filepath, "w") as file:
                 file.write(new_content)
             return {
                 "success": True,
@@ -74,15 +118,15 @@ def tools_kit(mcp):
         Returns a dict with 'success' and 'result' or 'error'.
         """
         try:
-            root = Path(directory)
-            if not root.exists():
+            real_filepath = get_real_path(directory)
+            if not real_filepath.exists():
                 return {
                     "success": False,
                     "error": f"Directory not found: {directory}",
                 }
             files = [
-                str(file)
-                for file in root.rglob("*")
+                str(get_virtual_path(file))
+                for file in real_filepath.rglob("*")
                 if fnmatch.fnmatch(file.name, pattern)
             ]
             return {"success": True, "result": files}
@@ -98,14 +142,15 @@ def tools_kit(mcp):
         """
         result = []
         try:
-            for file in Path("/testbed").rglob(file_pattern):
+            for file in repo_root().rglob(file_pattern):
                 if not file.is_file():
                     continue
                 with open(file, "r") as f:
                     for i, line in enumerate(f, start=1):
                         if pattern in line:
+                            virtual_path = get_virtual_path(file)
                             result.append(
-                                f"{file.resolve()}:{i} {line.rstrip()}"
+                                f"{virtual_path}:{i} {line.rstrip()}"
                             )
             if not result:
                 return {"success": True, "result": []}
@@ -122,16 +167,20 @@ def tools_kit(mcp):
         Returns a dict with 'success' and 'result' or 'error'.
         """
         result = []
-        def_re = re.compile(rf"^\s*(def|class)\s+{name}[(:]")
+        def_re = re.compile(
+            rf"^\s*(?:async\s+)?def\s+{re.escape(name)}\s*\("
+            rf"|^\s*class\s+{re.escape(name)}\s*[:(]"
+        )
         try:
-            for file in Path("/testbed").rglob("*.py"):
+            for file in repo_root().rglob("*.py"):
                 if not file.is_file():
                     continue
                 with open(file, "r") as f:
                     for i, line in enumerate(f, start=1):
                         if def_re.match(line):
+                            virtual_path = get_virtual_path(file)
                             result.append(
-                                f"{file.resolve()}:{i} {line.rstrip()}"
+                                f"{virtual_path}:{i} {line.rstrip()}"
                             )
             return {"success": True, "result": result}
         except Exception as e:
@@ -146,7 +195,7 @@ def tools_kit(mcp):
         """
         result = []
         try:
-            for file in Path("/testbed").rglob("*.py"):
+            for file in repo_root().rglob("*.py"):
                 if not file.is_file():
                     continue
                 with open(file, "r") as f:
@@ -180,7 +229,7 @@ def tools_kit(mcp):
         Execute the evaluation script.
         Returns a dict with 'success' and test results or 'error'.
         """
-        if not Path("/eval.sh").exists():
+        if not Path("eval.sh").exists():
             return {
                 "success": False,
                 "error": "No eval script found at /eval.sh",
@@ -189,7 +238,7 @@ def tools_kit(mcp):
             sub = subprocess.run(
                 "bash /eval.sh",
                 shell=True,
-                cwd="/testbed",
+                cwd=str(repo_root()),
                 capture_output=True,
                 text=True,
                 timeout=600,
@@ -222,7 +271,7 @@ def tools_kit(mcp):
             sub = subprocess.run(
                 "git -c core.fileMode=false diff",
                 shell=True,
-                cwd="/testbed",
+                cwd=str(repo_root()),
                 capture_output=True,
                 text=True,
                 timeout=600,
@@ -242,15 +291,16 @@ def tools_kit(mcp):
         Returns a dict with 'success' and command results or 'error'.
         """
         try:
-            if not Path(workdir).exists():
+            real_workdir = get_real_path(workdir)
+            if not real_workdir.exists():
                 return {
                     "success": False,
-                    "error": f"Directory not found: {workdir}",
+                    "error": f"Directory not found: {workdir} (Real: {real_workdir})",
                 }
             sub = subprocess.run(
                 command,
                 shell=True,
-                cwd=workdir,
+                cwd=real_workdir,
                 capture_output=True,
                 text=True,
                 timeout=600,

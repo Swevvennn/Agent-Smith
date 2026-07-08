@@ -378,7 +378,7 @@ class CLI:
             messages.append({"role": "user", "content": f"Execution result:\n{observation}"})
 
         solution = SolutionOutput(
-            task_id=str(task["task_id"]),
+            task_id=str(task["instance_id"]),
             benchmark="swebench",
             success=final_solution is not None,
             solution=final_solution or "",

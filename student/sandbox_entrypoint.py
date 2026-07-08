@@ -1,14 +1,3 @@
-"""
-Point d'entree pour la commande `uv run sandbox`.
-
-Le reste du code (agent_cli.py, sandbox/sandbox.py, client_mcp/bridge.py)
-utilise des imports "nus" (ex: `from sandbox.sandbox import run_code`),
-qui ne fonctionnent que si le dossier `student/` est sur sys.path.
-Ce fichier ajoute `student/` a sys.path avant d'importer quoi que ce
-soit d'autre, pour que `uv run sandbox` fonctionne peu importe le
-repertoire depuis lequel il est appele.
-"""
-
 import os
 import sys
 

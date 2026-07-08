@@ -1,3 +1,5 @@
+from client_mcp.server.tools_SWE_bench import repo_root
+
 def build_system_prompt_mbpp(manual):
     systeme_prompt = f"""You are a coding agent for MBPP.
 
@@ -87,12 +89,6 @@ def build_system_prompt_swebench(manual):
     - If no valid code block is produced, rewrite with exactly one ```python block.
     - If the sandbox reports a timeout, partial output, or an error, use that
     observation directly and do not guess what happened.
-    - Always call tools using keyword arguments only.
-    - Never use positional arguments.
-    - Correct:
-    search_code(pattern="pytest", glob="*.py")
-    - Incorrect:
-    search_code("pytest", "*.py")
 
     Example:
     Thought: I will locate the function mentioned in the issue.
