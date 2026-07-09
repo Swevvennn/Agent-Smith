@@ -9,13 +9,8 @@ from typing import Dict, Any, Optional
 
 REPO_ROOT = Path.cwd() / "testbed"
 
-# If SWEBENCH_CONTAINER is set, ALL file/shell operations happen INSIDE
-# that Docker container (at /testbed). Otherwise they run locally (for
-# testing without Docker).
 SWEBENCH_CONTAINER = os.getenv("SWEBENCH_CONTAINER", "")
 
-# The evaluation script for the current task, passed via env var so that
-# run_tests() keeps the exact signature required by the subject: run_tests()
 SWEBENCH_EVAL_SCRIPT = os.getenv("SWEBENCH_EVAL_SCRIPT", "")
 
 
@@ -244,7 +239,6 @@ def tools_kit(mcp):
         except Exception as e:
             return {"success": False, "error": str(e)}
 
-    # Code search
     @mcp.tool()
     def search_code(pattern: str, file_pattern: str) -> Dict[str, Any]:
         """
@@ -257,7 +251,6 @@ def tools_kit(mcp):
                 f"{shlex.quote(pattern)} /testbed"
             )
             sub = _run_shell(cmd)
-            # grep returns 1 when no match found; that's not an error for us
             if sub.returncode not in (0, 1):
                 return {"success": False, "error": sub.stderr.strip()}
             result = [line for line in sub.stdout.splitlines() if line.strip()]
@@ -351,7 +344,6 @@ def tools_kit(mcp):
         except Exception as e:
             return {"success": False, "error": str(e)}
 
-    # Execution Tools
     MAX_OUTPUT_CHARS = 20000
 
     def _truncate(text: str, label: str) -> str:

@@ -1,0 +1,75 @@
+Uninstalled 21 packages in 19ms
+Installed 21 packages in 16ms
+[07/10/26 01:00:10] INFO     Processing request of type            server.py:733
+                             ListToolsRequest                                   
+[07/10/26 01:01:36] INFO     Processing request of type            server.py:733
+                             ListToolsRequest                                   
+                    INFO     Processing request of type            server.py:733
+                             CallToolRequest                                    
+[07/10/26 01:01:38] INFO     Processing request of type            server.py:733
+                             ListToolsRequest                                   
+                    INFO     Processing request of type            server.py:733
+                             CallToolRequest                                    
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/usr/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/jagharra/Desktop/CURSUS_42/agent/student/agent_swebench.py", line 4, in <module>
+    raise SystemExit(main("swebench"))
+  File "/home/jagharra/Desktop/CURSUS_42/agent/student/agent_cli.py", line 494, in main
+    return cli.run(argv)
+  File "/home/jagharra/Desktop/CURSUS_42/agent/student/agent_cli.py", line 101, in run
+    return self.run_swebench_agent(args)
+  File "/home/jagharra/Desktop/CURSUS_42/agent/student/agent_cli.py", line 359, in run_swebench_agent
+    response, retries = call_with_key_rotation(make_call, api_keys)
+  File "/home/jagharra/Desktop/CURSUS_42/agent/student/agent/provider/api_management.py", line 63, in call_with_key_rotation
+    response = create_fn(key)
+  File "/home/jagharra/Desktop/CURSUS_42/agent/student/agent_cli.py", line 355, in make_call
+    return client.chat.completions.create(
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/openai/_utils/_utils.py", line 298, in wrapper
+    return func(*args, **kwargs)
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/openai/resources/chat/completions/completions.py", line 1251, in create
+    return self._post(
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/openai/_base_client.py", line 1332, in post
+    return cast(ResponseT, self.request(cast_to, opts, stream=stream, stream_cls=stream_cls))
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/openai/_base_client.py", line 1037, in request
+    response = self._send_request(
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/openai/_client.py", line 478, in _send_request
+    response = self._send_with_auth_retry(request, stream=stream, **kwargs)
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/openai/_client.py", line 456, in _send_with_auth_retry
+    response = super()._send_request(request, stream=stream, **kwargs)
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/openai/_base_client.py", line 964, in _send_request
+    return self._client.send(request, stream=stream, **kwargs)
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/httpx/_client.py", line 914, in send
+    response = self._send_handling_auth(
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/httpx/_client.py", line 942, in _send_handling_auth
+    response = self._send_handling_redirects(
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/httpx/_client.py", line 979, in _send_handling_redirects
+    response = self._send_single_request(request)
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/httpx/_client.py", line 1014, in _send_single_request
+    response = transport.handle_request(request)
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/httpx/_transports/default.py", line 250, in handle_request
+    resp = self._pool.handle_request(req)
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/httpcore/_sync/connection_pool.py", line 256, in handle_request
+    raise exc from None
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/httpcore/_sync/connection_pool.py", line 236, in handle_request
+    response = connection.handle_request(
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/httpcore/_sync/connection.py", line 103, in handle_request
+    return self._connection.handle_request(request)
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/httpcore/_sync/http11.py", line 136, in handle_request
+    raise exc
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/httpcore/_sync/http11.py", line 106, in handle_request
+    ) = self._receive_response_headers(**kwargs)
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/httpcore/_sync/http11.py", line 177, in _receive_response_headers
+    event = self._receive_event(timeout=timeout)
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/httpcore/_sync/http11.py", line 217, in _receive_event
+    data = self._network_stream.read(
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/httpcore/_backends/sync.py", line 128, in read
+    return self._sock.recv(max_bytes)
+  File "/usr/lib/python3.10/ssl.py", line 1288, in recv
+    return self.read(buflen)
+  File "/usr/lib/python3.10/ssl.py", line 1161, in read
+    return self._sslobj.read(len)
+KeyboardInterrupt
+RESULT: FAILED (execution)

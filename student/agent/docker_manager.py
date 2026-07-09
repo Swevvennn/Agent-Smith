@@ -20,7 +20,6 @@ class DockerManager:
             capture_output=True,
         )
 
-        # Start the container in the background
         print(f"Starting container {self.container_name} ...")
         subprocess.run(
             [

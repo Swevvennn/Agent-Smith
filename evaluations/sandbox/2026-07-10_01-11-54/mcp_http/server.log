@@ -1,0 +1,566 @@
+Uninstalled 21 packages in 20ms
+Installed 21 packages in 16ms
+INFO:     Started server process [330948]
+INFO:     Waiting for application startup.
+[07/10/26 01:12:10] INFO     StreamableHTTP       streamable_http_manager.py:116
+                             session manager                                    
+                             started                                            
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://localhost:18080 (Press CTRL+C to quit)
+[07/10/26 01:12:12] INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             e8fe5d5aac324fa6abfd                               
+                             b330a8d4a4b4                                       
+INFO:     127.0.0.1:56610 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56614 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:56630 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56640 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             f327872f6835456bae2e                               
+                             0bd45df38739                                       
+INFO:     127.0.0.1:56646 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56664 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56656 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:56668 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             a580b9957abf40c89603                               
+                             39da093ca78e                                       
+INFO:     127.0.0.1:56676 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56692 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56682 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:56698 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             5737ce639ea6473b9f9f                               
+                             6b28c348ca4e                                       
+INFO:     127.0.0.1:35346 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35356 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35348 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:35358 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+[07/10/26 01:12:13] INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             0fdb745b7e0847b8b39c                               
+                             3cafc1811e88                                       
+INFO:     127.0.0.1:35368 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35372 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35370 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:35388 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             54ba81b7efa84cc788ac                               
+                             3517291f7ece                                       
+INFO:     127.0.0.1:35400 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35416 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35412 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:35424 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             68d38626d9234f40b737                               
+                             dbfd33a39b8e                                       
+INFO:     127.0.0.1:35436 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35452 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35438 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:35454 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             268af756d51f4e9cb362                               
+                             fe35ffd40f6c                                       
+INFO:     127.0.0.1:35460 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35488 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35472 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:35496 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             437fcff240844c09a06e                               
+                             59cd7173f0b3                                       
+INFO:     127.0.0.1:35498 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35512 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35502 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:35520 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             d5f8f80713a64b8e8636                               
+                             ba6d068d31a4                                       
+INFO:     127.0.0.1:35530 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35554 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35538 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:35564 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             66531df0ffa34cadb52a                               
+                             1df150e8967b                                       
+INFO:     127.0.0.1:35578 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35584 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35590 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:35596 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+[07/10/26 01:12:14] INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             2b37c6d7a82143698a8c                               
+                             cab33a10ab6d                                       
+INFO:     127.0.0.1:35598 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35626 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35610 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:35628 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             941b66adcde74254bd94                               
+                             62a7ce22f516                                       
+INFO:     127.0.0.1:35638 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35640 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:35646 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35652 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             96412f61c52347e3a30b                               
+                             2686a852d403                                       
+INFO:     127.0.0.1:35668 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35692 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35678 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:35706 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             d833c9eadecc4fa086fe                               
+                             b6cb863221d3                                       
+INFO:     127.0.0.1:35716 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35730 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35734 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:35738 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             c045db20fa394cbab7f7                               
+                             66085875fd66                                       
+INFO:     127.0.0.1:35740 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35754 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35758 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:35762 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+[07/10/26 01:12:15] INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             7d16992c690e4f80bd36                               
+                             e96b1eeadf27                                       
+INFO:     127.0.0.1:35764 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35772 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35770 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:35786 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             cb5841c4e6ca4188a214                               
+                             ed8bb456e112                                       
+INFO:     127.0.0.1:35802 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35822 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35806 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:35832 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             2d43931207c54335a5f7                               
+                             e8b6f223280c                                       
+INFO:     127.0.0.1:35834 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35838 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:35846 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35862 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             23ed59034d4741558117                               
+                             073c740e3807                                       
+INFO:     127.0.0.1:35872 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35888 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35882 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:35892 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             1726bdb49e2746219ede                               
+                             6933a1c1adec                                       
+INFO:     127.0.0.1:35906 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35936 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35922 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:35950 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             464cbd818b4142e1a386                               
+                             b9f3d3dcca45                                       
+INFO:     127.0.0.1:35956 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35976 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35960 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:35984 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             2dc5973d120a434d813e                               
+                             33881e76b9eb                                       
+INFO:     127.0.0.1:36000 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36024 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36008 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:36028 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             0ee62123f31d45699343                               
+                             33e970c59fa9                                       
+INFO:     127.0.0.1:36042 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36064 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36054 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:36066 - "POST /mcp HTTP/1.1" 200 OK
+[07/10/26 01:12:16] INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             e2bc14cb1d6f4cd9b6e3                               
+                             5d6be9a8a3c7                                       
+INFO:     127.0.0.1:36072 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36086 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:36098 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36108 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             137ee6be762a4c8d9e83                               
+                             383c490ee83b                                       
+INFO:     127.0.0.1:36110 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36122 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:36126 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36134 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             8a5023f4600c47378b0f                               
+                             b2f0eae2386c                                       
+INFO:     127.0.0.1:36140 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36166 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36154 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:36172 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             64312972a0964ed4b8da                               
+                             5734c9354cb4                                       
+INFO:     127.0.0.1:36182 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36190 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:36202 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36210 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             01cd8a1bf70e401285fc                               
+                             7960d78f7975                                       
+INFO:     127.0.0.1:36212 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36226 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36220 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:36240 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             6b3876bb1a34471faea2                               
+                             79b0b769df63                                       
+INFO:     127.0.0.1:36248 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36262 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36250 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:36274 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+[07/10/26 01:12:17] INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             536274de19d34d35ae69                               
+                             5c5412a81f91                                       
+INFO:     127.0.0.1:36282 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36294 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36290 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:36308 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             d55a721266654988a174                               
+                             f124d4514e16                                       
+INFO:     127.0.0.1:36324 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36340 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:36344 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36358 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             fc4be616a38b49c299ac                               
+                             8829c3538b80                                       
+INFO:     127.0.0.1:36362 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36380 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36366 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:36390 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             4388cac5ecc246aeb49d                               
+                             aaa4d8bb5c85                                       
+INFO:     127.0.0.1:36398 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36424 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36410 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:36430 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             d82db6bb13614d97a029                               
+                             3938e56c4714                                       
+INFO:     127.0.0.1:36436 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36454 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36448 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:36462 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             5a9b4df6e7974827b849                               
+                             40fcbb8288c6                                       
+INFO:     127.0.0.1:36478 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36498 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36490 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:36510 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             cd99e175db564f2d8526                               
+                             9904cda5dfb1                                       
+INFO:     127.0.0.1:36512 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36520 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:36536 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36552 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+[07/10/26 01:12:18] INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             50fd1d3ab1944de9a91e                               
+                             e609d9704b68                                       
+INFO:     127.0.0.1:36556 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36584 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36570 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:36596 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             6cce3850ef8445089273                               
+                             c173799dff64                                       
+INFO:     127.0.0.1:36600 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36628 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36614 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:36636 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             c7c7ae3923334f94806c                               
+                             06598cc7ae83                                       
+INFO:     127.0.0.1:36646 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36654 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:36670 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36682 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             c95f249357bb431b8b3b                               
+                             3450d9616364                                       
+INFO:     127.0.0.1:36686 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36696 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36692 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:36712 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             4deb9e7ba4514ce89036                               
+                             b6ca1744a8f6                                       
+INFO:     127.0.0.1:36716 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36738 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36722 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:36746 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             8b5f4f0a16d24de09440                               
+                             87f33bc68f09                                       
+INFO:     127.0.0.1:36750 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36766 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36764 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:36774 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             398eec86c8de43dca43c                               
+                             b15ca39b1ba0                                       
+INFO:     127.0.0.1:36780 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36798 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36782 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:36800 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+[07/10/26 01:12:19] INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             a1f45c4756f747a6bee4                               
+                             19970478a8c6                                       
+INFO:     127.0.0.1:36804 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36818 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36808 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:36826 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             da77cd387295444681a2                               
+                             bcadbd458aab                                       
+INFO:     127.0.0.1:36842 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36848 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36846 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:36856 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             cdf9f164c6e549c793c8                               
+                             d242b7862e4d                                       
+INFO:     127.0.0.1:36870 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36874 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36872 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:36888 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             6393c3f59e5c4b4d8088                               
+                             e57950790141                                       
+INFO:     127.0.0.1:36894 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36920 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36904 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:36928 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             2a357d3b13c84a38949a                               
+                             ae600607921d                                       
+INFO:     127.0.0.1:36932 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36946 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36942 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:36962 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+                    INFO     Created new          streamable_http_manager.py:240
+                             transport with                                     
+                             session ID:                                        
+                             a479b2eaddad4d9cba25                               
+                             98cc0b747820                                       
+INFO:     127.0.0.1:36978 - "POST /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36996 - "GET /mcp HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36990 - "POST /mcp HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:37004 - "POST /mcp HTTP/1.1" 200 OK
+                    INFO     Processing request of type            server.py:720
+                             ListToolsRequest                                   
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+[07/10/26 01:12:20] INFO     StreamableHTTP       streamable_http_manager.py:120
+                             session manager                                    
+                             shutting down                                      
+INFO:     Application shutdown complete.
+INFO:     Finished server process [330948]

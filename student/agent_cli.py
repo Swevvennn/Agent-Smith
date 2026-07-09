@@ -214,12 +214,10 @@ class CLI:
             llm_text = response.choices[0].message.content
             print("LLM said:\n", llm_text)
 
-            # Count tokens and requests for this step
             total_requests += 1
             total_input_tokens += response.usage.prompt_tokens
             total_output_tokens += response.usage.completion_tokens
 
-            # Stop if we exceed the MBPP hard limits (subject section VI.1.1)
             if total_input_tokens > 6000 or total_output_tokens > 1500:
                 print("Token limit exceeded, stopping.")
                 break
@@ -231,7 +229,6 @@ class CLI:
                     "Write exactly one ```python block."
                 )
                 print("Observation:", observation)
-                # Record this step (no sandbox execution happened)
                 steps.append(StepMetrics(
                     step=step + 1,
                     input_tokens=response.usage.prompt_tokens,
@@ -257,7 +254,6 @@ class CLI:
             observation = result["output"]
             print("Observation:", observation)
 
-            # Record this step (with sandbox execution)
             steps.append(StepMetrics(
                 step=step + 1,
                 input_tokens=response.usage.prompt_tokens,
@@ -323,13 +319,9 @@ class CLI:
         manual = build_sandbox_manual(mcp_client.list_tools())
         mcp_client.close()
 
-        # Start the Docker container holding the buggy repo (at /testbed)
         docker = DockerManager(image=task["docker_image"])
         try:
             docker.start()
-            # Tell the MCP tools which container to run commands in,
-            # and give them the eval script (without changing run_tests()'s
-            # signature, per the subject's Mandatory Tools spec).
             os.environ["SWEBENCH_CONTAINER"] = docker.container_name
             os.environ["SWEBENCH_EVAL_SCRIPT"] = task["eval_script"]
         except Exception as e:
@@ -454,7 +446,6 @@ class CLI:
         self.save_output(output_path, solution)
         print(f"\nSolution saved to {output_path}")
 
-        # Clean up the Docker container (required by the subject)
         docker.cleanup()
 
         return 0 if solution.success else 1

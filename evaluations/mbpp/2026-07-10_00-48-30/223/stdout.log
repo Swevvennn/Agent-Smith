@@ -1,0 +1,47 @@
+
+===== ITERATION 1 =====
+LLM said:
+ Thought: The task is to check if a given element x is a majority element in a sorted array arr. A majority element appears more than n/2 times in the array. Since the array is sorted, we can find the first and last occurrence of x using binary search, then check if the count (last - first + 1) is greater than n/2.
+
+Code:
+```python
+def is_majority(arr, n, x):
+    def find_first(arr, x):
+        left, right = 0, n - 1
+        first = -1
+        while left <= right:
+            mid = (left + right) // 2
+            if arr[mid] == x:
+                first = mid
+                right = mid - 1
+            elif arr[mid] < x:
+                left = mid + 1
+            else:
+                right = mid - 1
+        return first
+
+    def find_last(arr, x):
+        left, right = 0, n - 1
+        last = -1
+        while left <= right:
+            mid = (left + right) // 2
+            if arr[mid] == x:
+                last = mid
+                left = mid + 1
+            elif arr[mid] < x:
+                left = mid + 1
+            else:
+                right = mid - 1
+        return last
+
+    first = find_first(arr, x)
+    if first == -1:
+        return False
+    last = find_last(arr, x)
+    count = last - first + 1
+    return count > n // 2
+```
+Observation: Code executed successfully
+
+===== ITERATION 2 =====
+TIME_LIMIT: OK (5s <= 120s)

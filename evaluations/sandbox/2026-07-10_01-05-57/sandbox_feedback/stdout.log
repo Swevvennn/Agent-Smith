@@ -1,0 +1,46 @@
+Sandbox loaded!
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: Testing sandbox feedback transparency...
+
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: FEEDBACK_TEST_1: Output capture works
+
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: IndentationError: expected an indented block after 'try' statement on line 1 (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: SyntaxError: invalid syntax (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: FEEDBACK_TEST_3: Generated 50 lines of output
+
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: IndentationError: expected an indented block after 'try' statement on line 1 (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: SyntaxError: invalid syntax (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: === SANDBOX FEEDBACK COMPLETE ===
+
+>>> Exit (CTRL+D)

@@ -1,0 +1,59 @@
+Uninstalled 21 packages in 16ms
+Installed 21 packages in 17ms
+Traceback (most recent call last):
+  File "/usr/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "/usr/lib/python3.10/runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "/home/jagharra/Desktop/CURSUS_42/agent/student/agent_mbpp.py", line 1, in <module>
+    from agent_cli import main
+  File "/home/jagharra/Desktop/CURSUS_42/agent/student/agent_cli.py", line 22, in <module>
+    from client_mcp.bridge import SyncMCPClient
+  File "/home/jagharra/Desktop/CURSUS_42/agent/student/client_mcp/bridge.py", line 5, in <module>
+    from client_mcp.client import MCPClient
+  File "/home/jagharra/Desktop/CURSUS_42/agent/student/client_mcp/client.py", line 4, in <module>
+    from mcp import ClientSession
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/mcp/__init__.py", line 4, in <module>
+    from .server.session import ServerSession
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/mcp/server/__init__.py", line 1, in <module>
+    from .fastmcp import FastMCP
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/mcp/server/fastmcp/__init__.py", line 7, in <module>
+    from .server import Context, FastMCP
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/mcp/server/fastmcp/server.py", line 53, in <module>
+    from mcp.server.fastmcp.resources import FunctionResource, Resource, ResourceManager
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/mcp/server/fastmcp/resources/__init__.py", line 2, in <module>
+    from .resource_manager import ResourceManager
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/mcp/server/fastmcp/resources/resource_manager.py", line 11, in <module>
+    from mcp.server.fastmcp.resources.templates import ResourceTemplate
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/mcp/server/fastmcp/resources/templates.py", line 12, in <module>
+    from mcp.server.fastmcp.resources.types import FunctionResource, Resource
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/mcp/server/fastmcp/resources/types.py", line 152, in <module>
+    class HttpResource(Resource):
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/pydantic/_internal/_model_construction.py", line 256, in __new__
+    complete_model_class(
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/pydantic/_internal/_model_construction.py", line 667, in complete_model_class
+    schema = gen_schema.generate_schema(cls)
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/pydantic/_internal/_generate_schema.py", line 744, in generate_schema
+    schema = self._generate_schema_inner(obj)
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/pydantic/_internal/_generate_schema.py", line 1038, in _generate_schema_inner
+    return self._model_schema(obj)
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/pydantic/_internal/_generate_schema.py", line 868, in _model_schema
+    {k: self._generate_md_field_schema(k, v, decorators) for k, v in fields.items()},
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/pydantic/_internal/_generate_schema.py", line 868, in <dictcomp>
+    {k: self._generate_md_field_schema(k, v, decorators) for k, v in fields.items()},
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/pydantic/_internal/_generate_schema.py", line 1245, in _generate_md_field_schema
+    schema, metadata = self._common_field_schema(name, field_info, decorators)
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/pydantic/_internal/_generate_schema.py", line 1299, in _common_field_schema
+    schema = self._apply_annotations(
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/pydantic/_internal/_generate_schema.py", line 2223, in _apply_annotations
+    annotations = list(_known_annotated_metadata.expand_grouped_metadata(annotations))
+  File "/goinfre/jagharra/call-me-maybe-venv/lib/python3.10/site-packages/pydantic/_internal/_known_annotated_metadata.py", line 131, in expand_grouped_metadata
+    if isinstance(annotation, at.GroupedMetadata):
+  File "/usr/lib/python3.10/typing.py", line 1502, in __instancecheck__
+    _is_callable_members_only(cls)) and
+  File "/usr/lib/python3.10/typing.py", line 1427, in _is_callable_members_only
+    return all(callable(getattr(cls, attr, None)) for attr in _get_protocol_attrs(cls))
+  File "/usr/lib/python3.10/typing.py", line 1419, in _get_protocol_attrs
+    for attr in list(base.__dict__.keys()) + list(annotations.keys()):
+KeyboardInterrupt
+RESULT: FAILED (execution)

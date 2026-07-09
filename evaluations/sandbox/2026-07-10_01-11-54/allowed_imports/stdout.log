@@ -1,0 +1,23 @@
+Sandbox loaded!
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: NameError: name 'math' is not defined
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: NameError: name 'json' is not defined
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: NameError: name 're' is not defined
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: NameError: name 'collections' is not defined
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: NameError: name 'itertools' is not defined
+>>> Ouput: Code executed successfully
+>>> Ouput: 
+=== ALL ALLOWED IMPORTS OK ===
+
+>>> Exit (CTRL+D)

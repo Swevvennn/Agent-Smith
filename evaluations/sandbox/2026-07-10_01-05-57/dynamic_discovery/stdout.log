@@ -1,0 +1,71 @@
+Sandbox loaded!
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: Testing dynamic MCP tool discovery...
+
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: === Tool Discovery ===
+
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: IndentationError: expected an indented block after 'for' statement on line 1 (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: NameError: name 'discovered' is not defined
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: IndentationError: expected an indented block after 'if' statement on line 1 (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: Code executed successfully
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: Code executed successfully
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: Code executed successfully
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: IndentationError: expected an indented block after 'if' statement on line 1 (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: SyntaxError: invalid syntax (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Exit (CTRL+D)

@@ -1,0 +1,10 @@
+Uninstalled 21 packages in 18ms
+Installed 21 packages in 17ms
+[07/10/26 00:48:33] INFO     Processing request of type            server.py:733
+                             ListToolsRequest                                   
+[07/10/26 00:48:35] INFO     Processing request of type            server.py:733
+                             ListToolsRequest                                   
+                    INFO     Processing request of type            server.py:733
+                             CallToolRequest                                    
+[07/10/26 00:48:36] INFO     Processing request of type            server.py:733
+                             ListToolsRequest                                   

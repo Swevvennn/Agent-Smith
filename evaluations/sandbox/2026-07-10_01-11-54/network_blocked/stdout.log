@@ -1,0 +1,50 @@
+Sandbox loaded!
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: IndentationError: expected an indented block after 'try' statement on line 1 (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: SyntaxError: invalid syntax (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: IndentationError: expected an indented block after 'try' statement on line 1 (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: SyntaxError: invalid syntax (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: IndentationError: expected an indented block after 'try' statement on line 1 (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: SyntaxError: invalid syntax (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: IndentationError: expected an indented block after 'try' statement on line 1 (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: SyntaxError: invalid syntax (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: Code executed successfully
+>>> Ouput: Code executed successfully
+>>> Ouput: IndentationError: expected an indented block after 'try' statement on line 1 (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: SyntaxError: invalid syntax (<string>, line 1)
+>>> Ouput: IndentationError: unexpected indent (<string>, line 1)
+>>> Ouput: Code executed successfully
+>>> Ouput: === NETWORK BLOCKED TEST COMPLETE ===
+
+>>> Exit (CTRL+D)
