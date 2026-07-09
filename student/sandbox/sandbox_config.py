@@ -10,7 +10,7 @@ class SandboxConfig(BaseModel):
     ])
 
     allowed_directories: List[str] = Field(default_factory=lambda: [
-        "/tmp/agent", "testbed"
+        "/tmp/agent", "/testbed"
     ])
 
     max_execution_time_seconds: int = 30

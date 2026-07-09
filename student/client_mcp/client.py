@@ -8,7 +8,7 @@ from mcp.client.stdio import stdio_client, StdioServerParameters
 
 class MCPClient:
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.session: ClientSession | None = None
         self._exit_stack = AsyncExitStack()
 
@@ -19,6 +19,8 @@ class MCPClient:
         self.session = await self._exit_stack.enter_async_context(
             ClientSession(read, write)
         )
+        if self.session is None:
+            raise RuntimeError("MCP session initialization failed")
         await self.session.initialize()
 
     async def connect_stdio(self, command: str) -> None:
@@ -37,6 +39,8 @@ class MCPClient:
         self.session = await self._exit_stack.enter_async_context(
             ClientSession(read, write)
         )
+        if self.session is None:
+            raise RuntimeError("MCP session initialization failed")
         await self.session.initialize()
 
     async def list_tools(self) -> list[dict]:

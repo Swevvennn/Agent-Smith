@@ -6,5 +6,8 @@ mcp = FastMCP("swebench_tools")
 tools_kit(mcp)
 
 if __name__ == "__main__":
-    transport = "streamable-http" if "--http" in sys.argv else "stdio"
-    mcp.run(transport=transport)
+    try:
+        transport = "streamable-http" if "--http" in sys.argv else "stdio"
+        mcp.run(transport=transport)
+    except (KeyboardInterrupt, Exception) as e:
+        print("ERROR:", e)

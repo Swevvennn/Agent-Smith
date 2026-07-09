@@ -49,16 +49,20 @@ class CLI:
         parser.add_argument("--task-file")
         parser.add_argument("--output")
         parser.add_argument("--model-name", default="mistral-small-latest",
-                             help="Defaults to mistral-small-latest")
-        parser.add_argument("--provider-url", default="https://api.mistral.ai/v1",
-                             help="Defaults to Mistral's endpoint")
+                            help="Defaults to mistral-small-latest")
+        parser.add_argument("--provider-url",
+                            default="https://api.mistral.ai/v1",
+                            help="Defaults to Mistral's endpoint")
         parser.add_argument("--max-iterations", type=int, default=10)
         parser.add_argument("--mcp-stdio")
         parser.add_argument("--mcp-server")
-        parser.add_argument("sandbox_config", nargs="?", default=None, help="Path to sandbox JSON config")
+        parser.add_argument(
+            "sandbox_config", nargs="?",
+            default=None, help="Path to sandbox JSON config")
         return parser
 
-    def parse_args(self, argv: Optional[list[str]] = None) -> argparse.Namespace:
+    def parse_args(
+            self, argv: Optional[list[str]] = None) -> argparse.Namespace:
         """Parse command-line arguments and store them on the CLI instance."""
         parser = self.build_parser()
         args = parser.parse_args(argv)
@@ -103,13 +107,18 @@ class CLI:
         if sandbox_config:
             config_path = Path(sandbox_config)
             if not config_path.exists():
-                print(f"Error: The configuration file '{sandbox_config}' does not exist.", file=sys.stderr)
+                print(
+                    "Error: The configuration file "
+                    f"'{sandbox_config}' does not exist.", file=sys.stderr)
                 return 1
             try:
                 with open(config_path, "r") as f:
                     config = SandboxConfig.model_validate_json(f.read())
             except ValidationError as e:
-                print(f"Error: The configuration file is malformed or invalid.\n{e}", file=sys.stderr)
+                print(
+                    "Error: The configuration file is malformed or invalid.\n"
+                    f"{e}",
+                    file=sys.stderr)
                 return 1
             except Exception as e:
                 print(f"Error reading file: {e}", file=sys.stderr)
@@ -155,14 +164,18 @@ class CLI:
         """Run the MBPP agent loop and write the solution output."""
         task = self.load_task(args.task_file)
         load_dotenv()
-        raw_keys = os.getenv("OPEN_ROUTER_API_KEY", "")
+        raw_keys = os.getenv("OPENROUTER_API_KEY", "")
         api_keys = [k.strip() for k in raw_keys.split(",") if k.strip()]
         provider_url = args.provider_url
-        mcp_transport, mcp_target = self._resolve_mcp_connection(MCP_COMMAND_MBPP)
+        mcp_transport, mcp_target = (
+            self._resolve_mcp_connection(MCP_COMMAND_MBPP)
+            )
         if mcp_transport == "http":
             mcp_client = SyncMCPClient(mcp_type="http", url=mcp_target or "")
         else:
-            mcp_client = SyncMCPClient(command=mcp_target or MCP_COMMAND_MBPP, mcp_type="stdio")
+            mcp_client = (
+                SyncMCPClient(
+                    command=mcp_target or MCP_COMMAND_MBPP, mcp_type="stdio"))
         manual = build_sandbox_manual(mcp_client.list_tools())
         mcp_client.close()
         system_prompt = prompt.build_system_prompt_mbpp(manual)
@@ -265,7 +278,10 @@ class CLI:
                 break
 
             messages.append({"role": "assistant", "content": llm_text})
-            messages.append({"role": "user", "content": f"Execution result:\n{observation}"})
+            messages.append(
+                {
+                    "role": "user",
+                    "content": f"Execution result:\n{observation}"})
 
         solution = SolutionOutput(
             task_id=str(task["task_id"]),
@@ -294,14 +310,16 @@ class CLI:
         """
         task = self.load_task(args.task_file)
         load_dotenv()
-        raw_keys = os.getenv("OPEN_ROUTER_API_KEY", "")
+        raw_keys = os.getenv("OPENROUTER_API_KEY", "")
         api_keys = [k.strip() for k in raw_keys.split(",") if k.strip()]
         provider_url = args.provider_url
-        mcp_transport, mcp_target = self._resolve_mcp_connection(MCP_COMMAND_SWEBENCH)
+        mcp_transport, mcp_target = (
+            self._resolve_mcp_connection(MCP_COMMAND_SWEBENCH))
         if mcp_transport == "http":
             mcp_client = SyncMCPClient(mcp_type="http", url=mcp_target or "")
         else:
-            mcp_client = SyncMCPClient(command=mcp_target or MCP_COMMAND_SWEBENCH, mcp_type="stdio")
+            mcp_client = SyncMCPClient(
+                command=mcp_target or MCP_COMMAND_SWEBENCH, mcp_type="stdio")
         manual = build_sandbox_manual(mcp_client.list_tools())
         mcp_client.close()
 
@@ -319,7 +337,7 @@ class CLI:
             return 1
 
         system_prompt = prompt.build_system_prompt_swebench(manual)
-        config = SandboxConfig(max_memory_mb=0)  # Docker provides real memory isolation here
+        config = SandboxConfig(max_memory_mb=0)
         user_prompt = prompt.build_user_prompt_swebench(task)
         messages = [
             {"role": "system", "content": system_prompt},
@@ -414,7 +432,10 @@ class CLI:
                 break
 
             messages.append({"role": "assistant", "content": llm_text})
-            messages.append({"role": "user", "content": f"Execution result:\n{observation}"})
+            messages.append(
+                {
+                    "role": "user",
+                    "content": f"Execution result:\n{observation}"})
 
         solution = SolutionOutput(
             task_id=str(task["instance_id"]),
@@ -480,21 +501,3 @@ def main(mode: str, argv: Optional[list[str]] = None) -> int:
     """Module entry point for `python -m agent_cli` style execution."""
     cli = CLI(mode)
     return cli.run(argv)
-
-# Pour jacem :
-
-# Urgent: Pourvoir lancer le program sans devoir donne l'url de l'api key et le model name ET SURTOUT AMELIORER LEXTRACTEUR DE CODE ( XML ect)
-
-# - SWEBENCH : s'occupe du repo sur lequel il agit et essayer de transfere le scrpit eval script a run_tests sans changer la signature
-
-# - Faire des test du swebench et finaliser output propre
-
-# - Probleme sur les timestamp d'iterations mal calculer
-
-# - Crash test pour enlever tout les traceback (surtout KeyboardInterrupt)
-
-# - Swebench (agent_cli.py n utilise jamais base_commit. Pour SWE-bench, c est important,
-#     parce que la correction attend souvent que la repo soit evaluee a partir du
-#     commit de base, pas juste sur l etat courant.)
-
-# - Essaie de tout casser jacem une fois fini je serai dispo demain a 12H 13h laisse moi des commentaire il reste 24h c possible !!

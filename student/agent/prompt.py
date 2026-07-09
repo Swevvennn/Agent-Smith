@@ -1,5 +1,3 @@
-from client_mcp.server.tools_SWE_bench import repo_root
-
 def build_system_prompt_mbpp(manual):
     systeme_prompt = f"""You are a coding agent for MBPP.
 
@@ -22,7 +20,8 @@ def build_system_prompt_mbpp(manual):
     - Prefer small, testable changes.
     - Use the available MCP tools as normal Python functions.
     - First build the solution, then test it with run_tests.
-    - These are public test make sure you answer is strong, hidden test can occur
+    - These are public test make sure you answer is strong, hidden test can
+        occur
     - IMPORTANT: as soon as run_tests returns {{"passed": true}}, you MUST
       call final_answer in the VERY NEXT code block. Do not repeat the
       solution, do not re-test. Just call final_answer.
@@ -30,8 +29,10 @@ def build_system_prompt_mbpp(manual):
       ```python
       final_answer("def add(a, b):\\n    return a + b")
       ```
-    - If execution fails, inspect the observation and adapt the next code block.
-    - If no valid code block is produced, rewrite with exactly one ```python block.
+    - If execution fails, inspect the observation and
+          adapt the next code block.
+    - If no valid code block is produced,
+          rewrite with exactly one ```python block.
     - If a block is malformed, fix it in the next turn.
     - If the sandbox reports a timeout, partial output, or an error, use that
       observation directly and do not guess what happened.
@@ -41,7 +42,10 @@ def build_system_prompt_mbpp(manual):
     Code:
     ```python
     solution = "def add(a, b):\\n    return a + b"
-    result = run_tests(solution_code=solution, test_list=["assert add(2, 3) == 5"])
+    result = run_tests(
+        solution_code=solution,
+        test_list=["assert add(2, 3) == 5"],
+    )
     print(result)
     ```
 
@@ -56,7 +60,8 @@ def build_system_prompt_mbpp(manual):
 
 
 def build_system_prompt_swebench(manual):
-    systeme_prompt = f"""You are a coding agent that fixes real bugs in real repositories (SWE-bench).
+    systeme_prompt = f"""You are a coding agent that fixes real bugs
+        in real repositories (SWE-bench).
 
     Your job is to solve the task by iterating through a strict loop:
     Thought -> Code -> Observation.
@@ -74,11 +79,13 @@ def build_system_prompt_swebench(manual):
     {manual}
 
     Rules:
-    - Start by exploring the codebase: use search_code, search_function_or_class_definition_in_code,
-    read_file to locate the code relevant to the issue described below.
+    - Start by exploring the codebase: use search_code,
+      search_function_or_class_definition_in_code,
+      read_file to locate the code relevant to the issue described below.
     - Make the smallest change that fixes the issue, using edit_file.
     - Verify your fix by calling run_tests() before finishing.
-    - IMPORTANT: once run_tests() passes, you must retrieve your patch by calling
+    - IMPORTANT: once run_tests() passes,
+      you must retrieve your patch by calling
     get_patch(), and pass its result directly to final_answer. Do not write the
     patch yourself, do not guess the diff format - always use get_patch().
     - final_answer must be inside a ```python block, like:
@@ -86,8 +93,10 @@ def build_system_prompt_swebench(manual):
     patch = get_patch()
     final_answer(patch)
     ```
-    - If execution fails, inspect the observation and adapt the next code block.
-    - If no valid code block is produced, rewrite with exactly one ```python block.
+    - If execution fails, inspect the observation and
+        adapt the next code block.
+    - If no valid code block is produced,
+        rewrite with exactly one ```python block.
     - If the sandbox reports a timeout, partial output, or an error, use that
     observation directly and do not guess what happened.
 
@@ -166,6 +175,7 @@ def build_user_prompt_swebench(task):
         Instructions:
         - Implement exactly the correct patch
         - Respect the problem statement task
-        - Call (patch = get_patch(), final_answer(patch)) only when the problem is solved
+        - Call (patch = get_patch(), final_answer(patch))
+          only when the problem is solved
     """
     return user_prompt

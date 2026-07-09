@@ -6,7 +6,8 @@ from client_mcp.client import MCPClient
 
 
 class SyncMCPClient:
-    def __init__(self, command: str = "", mcp_type: str = "stdio", url: str = ""):
+    def __init__(
+            self, command: str = "", mcp_type: str = "stdio", url: str = ""):
         self.command = command
 
         self.loop = asyncio.new_event_loop()
@@ -29,7 +30,8 @@ class SyncMCPClient:
         self.loop.run_forever()
 
     def run(self, coro):
-        return asyncio.run_coroutine_threadsafe(coro, self.loop).result()
+        future = asyncio.run_coroutine_threadsafe(coro, self.loop)
+        return future.result(timeout=30)
 
     def list_tools(self):
         return self.run(self.client.list_tools())

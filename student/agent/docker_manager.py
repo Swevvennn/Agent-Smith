@@ -33,7 +33,9 @@ class DockerManager:
             capture_output=True,
         )
 
-    def exec(self, command: str, workdir: str = "/testbed") -> tuple[str, str, int]:
+    def exec(
+            self,
+            command: str, workdir: str = "/testbed") -> tuple[str, str, int]:
         """Run a shell command inside the container.
 
         Returns (stdout, stderr, exit_code).

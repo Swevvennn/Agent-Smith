@@ -36,5 +36,7 @@ def build_sandbox_manual(tools: list[dict]) -> str:
             params += f"{param}: {param_type}, "
         params = params.rstrip(", ")
         function_and_params += params + ")"
-        manual += "\n\n" + function_and_params + "\n\t" + tool["description"].strip()
+        manual += ("\n\n"
+                   + function_and_params
+                   + "\n\t" + tool["description"].strip())
     return manual

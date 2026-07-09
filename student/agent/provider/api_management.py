@@ -1,5 +1,6 @@
 import os
 
+
 class Provider:
     def __init__(self, name: str, url: str, env_key: str):
         self.name = name
@@ -35,7 +36,7 @@ PROVIDERS: dict[str, Provider] = {
         "https://api.mistral.ai/v1",
         "MISTRAL_API_KEY",
     ),
-    
+
     "gemini": Provider(
         "gemini",
         "https://generativelanguage.googleapis.com/v1beta/openai",
@@ -65,4 +66,6 @@ def call_with_key_rotation(create_fn, api_keys: list[str]):
             last_error = error
             print(f"API key #{index + 1} failed ({error}); trying next key...")
 
-    raise last_error
+    if last_error is not None:
+        raise last_error
+    raise RuntimeError("API key rotation failed without an exception.")

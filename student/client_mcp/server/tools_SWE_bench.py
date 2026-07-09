@@ -25,7 +25,8 @@ def _run_shell(command: str, workdir: str = "/testbed", timeout: int = 600):
     if SWEBENCH_CONTAINER:
         full = ["docker", "exec", "-w", workdir, SWEBENCH_CONTAINER,
                 "bash", "-c", command]
-        return subprocess.run(full, capture_output=True, text=True, timeout=timeout)
+        return subprocess.run(
+            full, capture_output=True, text=True, timeout=timeout)
     return subprocess.run(command, shell=True, cwd=str(repo_root()),
                           capture_output=True, text=True, timeout=timeout)
 
@@ -119,7 +120,9 @@ def tools_kit(mcp):
         if SWEBENCH_CONTAINER:
             found, content = _docker_read_text(filepath)
             if not found:
-                return {"success": False, "error": f"File not found: {filepath} ({content})"}
+                return {
+                    "success": False,
+                    "error": f"File not found: {filepath} ({content})"}
             lines_iter = content.splitlines()
             result = []
             for i, line in enumerate(lines_iter, start=1):
@@ -155,20 +158,29 @@ def tools_kit(mcp):
         if SWEBENCH_CONTAINER:
             found, content = _docker_read_text(filepath)
             if not found:
-                return {"success": False, "error": f"File not found: {filepath} ({content})"}
+                return {
+                    "success": False,
+                    "error": f"File not found: {filepath} ({content})"}
             occurrences = content.count(old_str)
             if occurrences == 0:
-                return {"success": False, "error": f"Pattern not found in {filepath}"}
+                return {
+                    "success": False,
+                    "error": f"Pattern not found in {filepath}"}
             if occurrences > 1:
                 return {
                     "success": False,
-                    "error": f"Pattern appears {occurrences} times; be more specific",
+                    "error": (
+                        f"Pattern appears {occurrences} times; "
+                        "be more specific"
+                    ),
                 }
             new_content = content.replace(old_str, new_str, 1)
             ok, err = _docker_write_text(filepath, new_content)
             if not ok:
                 return {"success": False, "error": f"Write failed: {err}"}
-            return {"success": True, "result": f"Successfully replaced in {filepath}"}
+            return {
+                "success": True,
+                "result": f"Successfully replaced in {filepath}"}
 
         try:
             real_filepath = get_real_path(filepath)
@@ -207,9 +219,12 @@ def tools_kit(mcp):
         """
         if SWEBENCH_CONTAINER:
             path = _to_container_path(directory)
-            sub = _run_shell(f"find {shlex.quote(path)} -name {shlex.quote(pattern)}")
+            sub = _run_shell(
+                f"find {shlex.quote(path)} -name {shlex.quote(pattern)}")
             if sub.returncode != 0:
-                return {"success": False, "error": f"Directory not found: {directory}"}
+                return {
+                    "success": False,
+                    "error": f"Directory not found: {directory}"}
             files = [line for line in sub.stdout.splitlines() if line.strip()]
             return {"success": True, "result": files}
 
@@ -275,7 +290,10 @@ def tools_kit(mcp):
         Returns a dict with 'success' and 'result' or 'error'.
         """
         if SWEBENCH_CONTAINER:
-            pattern = f"^\\s*\\(async \\+\\)\\?def \\+{re.escape(name)}\\s*(\\|^\\s*class \\+{re.escape(name)}\\s*[:(]"
+            pattern = (
+                rf"^\s*(?:async\s+)?def\s+{re.escape(name)}\s*"
+                rf"(:|\(|$)|^\s*class\s+{re.escape(name)}\s*[:(]"
+            )
             cmd = f"grep -rnE --include=*.py {shlex.quote(pattern)} /testbed"
             sub = _run_shell(cmd)
             if sub.returncode not in (0, 1):
@@ -357,10 +375,13 @@ def tools_kit(mcp):
         if not SWEBENCH_EVAL_SCRIPT:
             return {
                 "success": False,
-                "error": "No evaluation script configured (SWEBENCH_EVAL_SCRIPT is empty).",
+                "error": (
+                    "No evaluation script configured"
+                    " (SWEBENCH_EVAL_SCRIPT is empty)."),
             }
         try:
-            sub = _run_shell(SWEBENCH_EVAL_SCRIPT, workdir="/testbed", timeout=600)
+            sub = _run_shell(
+                SWEBENCH_EVAL_SCRIPT, workdir="/testbed", timeout=600)
             return {
                 "success": True,
                 "result": {
@@ -404,7 +425,8 @@ def tools_kit(mcp):
         """
         if SWEBENCH_CONTAINER:
             try:
-                sub = _run_shell(command, workdir=_to_container_path(workdir), timeout=600)
+                sub = _run_shell(
+                    command, workdir=_to_container_path(workdir), timeout=600)
                 return {
                     "success": True,
                     "result": {
@@ -414,7 +436,8 @@ def tools_kit(mcp):
                     },
                 }
             except subprocess.TimeoutExpired:
-                return {"success": False, "error": "Command timed out after 600s"}
+                return {
+                    "success": False, "error": "Command timed out after 600s"}
             except Exception as e:
                 return {"success": False, "error": str(e)}
 
@@ -423,7 +446,9 @@ def tools_kit(mcp):
             if not real_workdir.exists():
                 return {
                     "success": False,
-                    "error": f"Directory not found: {workdir} (Real: {real_workdir})",
+                    "error": (
+                        "Directory not found: "
+                        f"{workdir} (Real: {real_workdir})"),
                 }
             sub = subprocess.run(
                 command,
@@ -445,4 +470,3 @@ def tools_kit(mcp):
             return {"success": False, "error": "Command timed out after 600s"}
         except Exception as e:
             return {"success": False, "error": str(e)}
-    

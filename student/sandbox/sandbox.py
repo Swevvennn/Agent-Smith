@@ -2,7 +2,11 @@ import multiprocessing
 import resource
 import builtins
 import socket
+import sys
+import io
+
 from sandbox.sandbox_config import SandboxConfig
+from typing import Any
 
 
 def _is_path_allowed(path: str, allowed_directories: list[str]) -> bool:
@@ -34,8 +38,11 @@ def _make_safe_import(authorized_imports: list[str]):
 
     def safe_import(name, *args, **kwargs):
         base_module = name.split(".")[0]
-        if name not in authorized_imports and f"{base_module}.*" not in authorized_imports \
-                and base_module not in authorized_imports:
+        if (
+            name not in authorized_imports
+            and f"{base_module}.*" not in authorized_imports
+            and base_module not in authorized_imports
+        ):
             raise ImportError(f"Import '{name}' is not allowed in sandbox")
         return real_import(name, *args, **kwargs)
 
@@ -81,7 +88,7 @@ def _run_in_subprocess(
             mcp_client = SyncMCPClient(command=mcp_target, mcp_type="stdio")
         tool_wrappers = make_wrappers_tools(mcp_client)
 
-    socket.socket = _block_network
+    setattr(socket, "socket", _block_network)
 
     final_answer_holder = {"value": None}
 
@@ -108,12 +115,8 @@ def _run_in_subprocess(
         "final_answer": final_answer,
     }
     namespace.update(tool_wrappers)
-
-    import sys
-    import io
     old_stdout = sys.stdout
     sys.stdout = io.StringIO()
-
     try:
         exec(code, namespace)
         captured = sys.stdout.getvalue()
@@ -124,13 +127,20 @@ def _run_in_subprocess(
         sys.stdout = old_stdout
         raise
     except Exception as e:
-        captured = sys.stdout.getvalue()
+        captured = sys.stdout.getvalue()  # type: ignore[union-attr]
         sys.stdout = old_stdout
-        output = captured + f"\n{type(e).__name__}: {e}" if captured.strip() else f"{type(e).__name__}: {e}"
+        output = (
+            captured + f"\n{type(e).__name__}: {e}"
+            if captured.strip()
+            else f"{type(e).__name__}: {e}"
+        )
         result_queue.put({"success": False, "output": output})
     finally:
         if mcp_client is not None:
-            mcp_client.close()
+            try:
+                mcp_client.close()
+            except BaseException:
+                pass
 
     answer_queue.put(final_answer_holder["value"])
 
@@ -145,8 +155,8 @@ def run_code(
     if config is None:
         config = SandboxConfig()
 
-    result_queue = multiprocessing.Queue()
-    answer_queue = multiprocessing.Queue()
+    result_queue: multiprocessing.Queue[Any] = multiprocessing.Queue()
+    answer_queue: multiprocessing.Queue[Any] = multiprocessing.Queue()
 
     process = multiprocessing.Process(
         target=_run_in_subprocess,
@@ -168,13 +178,16 @@ def run_code(
         process.join()
         return {
             "success": False,
-            "output": f"Execution timed out after {config.max_execution_time_seconds}s. Output is partial.",
+            "output": (
+                "Execution timed out after "
+                f"{config.max_execution_time_seconds}s. Output is partial."),
             "final_answer": None,
             "timed_out": True,
         }
 
     result = result_queue.get() if not result_queue.empty() else {
-        "success": False, "output": "Process crashed without returning a result"
+        "success": False,
+        "output": "Process crashed without returning a result"
     }
     final_value = answer_queue.get() if not answer_queue.empty() else None
 
