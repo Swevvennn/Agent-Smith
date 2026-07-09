@@ -56,11 +56,20 @@ def _run_in_subprocess(
     mcp_args: list[str] | None = None,
 ):
 
-    max_bytes = config.max_memory_mb * 1024 * 1024
-    try:
-        resource.setrlimit(resource.RLIMIT_AS, (max_bytes, max_bytes))
-    except Exception:
-        pass
+    # 0 (or less) means "no address-space limit". This is used for
+    # SWE-bench, where the tools call `docker exec` as a child process:
+    # Docker (written in Go) needs to reserve a large virtual address
+    # space at startup regardless of actual RAM usage, which conflicts
+    # with RLIMIT_AS and makes Docker crash ("failed to reserve page
+    # summary memory"). Real memory isolation for SWE-bench is already
+    # provided by the Docker container itself, so this local limit isn't
+    # needed there. MBPP keeps its default limit unaffected.
+    if config.max_memory_mb and config.max_memory_mb > 0:
+        max_bytes = config.max_memory_mb * 1024 * 1024
+        try:
+            resource.setrlimit(resource.RLIMIT_AS, (max_bytes, max_bytes))
+        except Exception:
+            pass
     mcp_client = None
     tool_wrappers = {}
     if mcp_target is not None:
@@ -172,4 +181,3 @@ def run_code(
     result["final_answer"] = final_value
     result["timed_out"] = False
     return result
-# EOF

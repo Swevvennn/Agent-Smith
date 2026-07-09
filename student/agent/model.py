@@ -57,3 +57,26 @@ class SolutionOutput(BaseModel):
     steps: List["StepMetrics"] = Field(default_factory=list)
     error: Optional[str] = None
     timestamp: str = Field(default_factory=lambda: datetime.now().isoformat())
+
+class swbench_task(BaseModel):
+    steps : int
+    response_token : List
+    output_token : List
+    MAX_TOKENS : int
+    MAX_TOKENS_LIMIT : int
+    success : str
+    error : str
+    time_out : int
+    timestamp : str = Field (default_factory= lambda: datetime.now().isoformat())
+
+class swbench_response(BaseModel):
+    steps : int
+    response_token : List
+    output_token : List
+    MAX_TOKENS : int
+    MAX_TOKENS_LIMIT : int
+    success : str
+    error : str
+    time_out : int
+    timestamp : str = Field(default_factory= lambda: datetime.now().isoformat())
+    

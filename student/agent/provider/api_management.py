@@ -35,6 +35,7 @@ PROVIDERS: dict[str, Provider] = {
         "https://api.mistral.ai/v1",
         "MISTRAL_API_KEY",
     ),
+    
     "gemini": Provider(
         "gemini",
         "https://generativelanguage.googleapis.com/v1beta/openai",
@@ -58,7 +59,8 @@ def call_with_key_rotation(create_fn, api_keys: list[str]):
     last_error = None
     for index, key in enumerate(api_keys):
         try:
-            return create_fn(key)
+            response = create_fn(key)
+            return response, index
         except Exception as error:
             last_error = error
             print(f"API key #{index + 1} failed ({error}); trying next key...")

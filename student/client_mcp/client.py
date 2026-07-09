@@ -22,8 +22,15 @@ class MCPClient:
         await self.session.initialize()
 
     async def connect_stdio(self, command: str) -> None:
+        import os
         parts = command.split()
-        params = StdioServerParameters(command=parts[0], args=parts[1:])
+        # By default, the MCP SDK only forwards HOME/PATH/TERM to the
+        # spawned subprocess (for security). We need our custom env vars
+        # (SWEBENCH_CONTAINER, SWEBENCH_EVAL_SCRIPT, API keys, ...) to
+        # reach it, so we pass the full parent environment explicitly.
+        params = StdioServerParameters(
+            command=parts[0], args=parts[1:], env=os.environ.copy()
+        )
         read, write = await self._exit_stack.enter_async_context(
             stdio_client(params)
         )

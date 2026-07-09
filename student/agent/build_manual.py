@@ -17,7 +17,6 @@ def get_schema_type(schema: dict) -> str:
             if item.get("type")
         ]
         return " | ".join(types)
-
     return "unknown"
 
 
@@ -34,7 +33,6 @@ def build_sandbox_manual(tools: list[dict]) -> str:
             param_schema = schema["properties"][param]
 
             param_type = get_schema_type(param_schema)
-
             params += f"{param}: {param_type}, "
         params = params.rstrip(", ")
         function_and_params += params + ")"

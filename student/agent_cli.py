@@ -15,6 +15,7 @@ from agent.build_manual import build_sandbox_manual
 from agent.model import (MBPPTaskInput,
                          SWEBenchTaskInput, SolutionOutput, StepMetrics)
 from agent.provider.api_management import call_with_key_rotation
+from agent.docker_manager import DockerManager
 from agent import prompt
 from sandbox.sandbox import run_code
 from sandbox.sandbox_config import SandboxConfig
@@ -47,8 +48,10 @@ class CLI:
         parser = argparse.ArgumentParser(description="Agent Smith CLI")
         parser.add_argument("--task-file")
         parser.add_argument("--output")
-        parser.add_argument("--model-name")
-        parser.add_argument("--provider-url")
+        parser.add_argument("--model-name", default="mistral-small-latest",
+                             help="Defaults to mistral-small-latest")
+        parser.add_argument("--provider-url", default="https://api.mistral.ai/v1",
+                             help="Defaults to Mistral's endpoint")
         parser.add_argument("--max-iterations", type=int, default=10)
         parser.add_argument("--mcp-stdio")
         parser.add_argument("--mcp-server")
@@ -190,7 +193,7 @@ class CLI:
                         model=args.model_name or "mistral-small-latest",
                         messages=messages,
                     )
-                response = call_with_key_rotation(make_call, api_keys)
+                response, retries = call_with_key_rotation(make_call, api_keys)
             except Exception as e:
                 print(f"LLM call failed: {e}")
                 break
@@ -226,7 +229,7 @@ class CLI:
                     llm_output=llm_text,
                     sandbox_input="",
                     sandbox_output=observation,
-                    retries=0,
+                    retries=retries,
                 ))
                 messages.append({"role": "assistant", "content": llm_text})
                 messages.append({"role": "user", "content": observation})
@@ -252,7 +255,7 @@ class CLI:
                 llm_output=llm_text,
                 sandbox_input=code,
                 sandbox_output=observation,
-                retries=0,
+                retries=retries,
             ))
 
             if result["final_answer"] is not None:
@@ -302,8 +305,21 @@ class CLI:
         manual = build_sandbox_manual(mcp_client.list_tools())
         mcp_client.close()
 
+        # Start the Docker container holding the buggy repo (at /testbed)
+        docker = DockerManager(image=task["docker_image"])
+        try:
+            docker.start()
+            # Tell the MCP tools which container to run commands in,
+            # and give them the eval script (without changing run_tests()'s
+            # signature, per the subject's Mandatory Tools spec).
+            os.environ["SWEBENCH_CONTAINER"] = docker.container_name
+            os.environ["SWEBENCH_EVAL_SCRIPT"] = task["eval_script"]
+        except Exception as e:
+            print(f"Failed to start Docker container: {e}")
+            return 1
+
         system_prompt = prompt.build_system_prompt_swebench(manual)
-        config = SandboxConfig()
+        config = SandboxConfig(max_memory_mb=0)  # Docker provides real memory isolation here
         user_prompt = prompt.build_user_prompt_swebench(task)
         messages = [
             {"role": "system", "content": system_prompt},
@@ -330,7 +346,7 @@ class CLI:
                         model=args.model_name or "mistral-small-latest",
                         messages=messages,
                     )
-                response = call_with_key_rotation(make_call, api_keys)
+                response, retries = call_with_key_rotation(make_call, api_keys)
             except Exception as e:
                 print(f"LLM call failed: {e}")
                 break
@@ -363,7 +379,7 @@ class CLI:
                     llm_output=llm_text,
                     sandbox_input="",
                     sandbox_output=observation,
-                    retries=0,
+                    retries=retries,
                 ))
                 messages.append({"role": "assistant", "content": llm_text})
                 messages.append({"role": "user", "content": observation})
@@ -388,7 +404,7 @@ class CLI:
                 llm_output=llm_text,
                 sandbox_input=code,
                 sandbox_output=observation,
-                retries=0,
+                retries=retries,
             ))
 
             if result["final_answer"] is not None:
@@ -416,6 +432,9 @@ class CLI:
         output_path = args.output or "cache/swebench_solution.json"
         self.save_output(output_path, solution)
         print(f"\nSolution saved to {output_path}")
+
+        # Clean up the Docker container (required by the subject)
+        docker.cleanup()
 
         return 0 if solution.success else 1
 
