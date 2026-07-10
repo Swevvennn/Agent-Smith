@@ -9,5 +9,6 @@ install: clean
 	@echo "Finished !!!"
 
 clean:
+	rm -rf __pycache__ */__pycache__ */*/__pycache__ */*/*/__pycache__
 	rm -rf .venv /tmp/venv /tmp/uv-cache
 	@echo "Tout propre le PC !!!"

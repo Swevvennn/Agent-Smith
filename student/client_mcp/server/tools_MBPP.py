@@ -1,5 +1,6 @@
 from typing import Dict, List, Any
 import subprocess
+import textwrap
 
 
 def tools_kit(mcp):
@@ -12,6 +13,7 @@ def tools_kit(mcp):
         Use it to CHECK your work before finishing.
         """
         test_imports = test_imports or []
+        solution_code = textwrap.dedent(solution_code).strip("\n")
         parts = list(test_imports) + [solution_code] + list(test_list)
         full_code = "\n".join(parts)
 
@@ -28,6 +30,6 @@ def tools_kit(mcp):
         if proc.returncode == 0:
             return {"passed": True, "message": f"All tests passed: {parts}"}
 
-        error = (proc.stderr.strip().splitlines()[-1]
+        error = (proc.stderr.strip().splitlines()[-6:]
                  if proc.stderr.strip() else "unknown error")
         return {"passed": False, "message": error}

@@ -1,4 +1,5 @@
 import multiprocessing
+import traceback
 import resource
 import builtins
 import socket
@@ -52,6 +53,18 @@ def _make_safe_import(authorized_imports: list[str]):
 def _block_network(*args, **kwargs):
     raise PermissionError("Network access is not allowed in sandbox")
 
+def _clean_traceback(e: BaseException) -> str:
+    """
+    Renvoie le traceback complet MAIS sans les frames internes du
+    sandbox (celles qui ne viennent pas du code exécuté par l'agent,
+    i.e. qui n'ont pas pour filename "<string>").
+    Ça donne à l'agent la ligne fautive + le contexte d'appel réel,
+    sans lui montrer l'implémentation interne du sandbox.
+    """
+    tb = e.__traceback__
+    while tb is not None and tb.tb_frame.f_code.co_filename != "<string>":
+        tb = tb.tb_next
+    return "".join(traceback.format_exception(type(e), e, tb))
 
 def _run_in_subprocess(
     code: str,
@@ -119,13 +132,10 @@ def _run_in_subprocess(
         sys.stdout = old_stdout
         raise
     except Exception as e:
-        captured = sys.stdout.getvalue()  # type: ignore[union-attr]
+        captured = sys.stdout.getvalue()
         sys.stdout = old_stdout
-        output = (
-            captured + f"\n{type(e).__name__}: {e}"
-            if captured.strip()
-            else f"{type(e).__name__}: {e}"
-        )
+        tb = _clean_traceback(e)
+        output = (captured + "\n" + tb) if captured.strip() else tb
         result_queue.put({"success": False, "output": output})
     finally:
         if mcp_client is not None:
