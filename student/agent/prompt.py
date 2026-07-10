@@ -81,13 +81,11 @@ def build_system_prompt_swebench(manual):
     Rules:
     - Start by exploring the codebase: use search_code,
       search_function_or_class_definition_in_code,
-      read_file to locate the code relevant to the issue described below.
-    - Make the smallest change that fixes the issue, using edit_file.
     - Verify your fix by calling run_tests() before finishing.
     - IMPORTANT: once run_tests() passes,
       you must retrieve your patch by calling
-    get_patch(), and pass its result directly to final_answer. Do not write the
-    patch yourself, do not guess the diff format - always use get_patch().
+    get patch , and pass its result directly to final_answer. Do not write the
+    patch yourself, do not guess the diff format - always use get patch .
     - final_answer must be inside a ```python block, like:
     ```python
     patch = get_patch()
@@ -101,7 +99,7 @@ def build_system_prompt_swebench(manual):
     observation directly and do not guess what happened.
 
     Example:
-    Thought: I will locate the function mentioned in the issue.
+    Thought:
     Code:
     ```python
     result = search_function_or_class_definition_in_code("some_function")
@@ -166,7 +164,7 @@ def build_user_prompt_swebench(task):
         ## Bash script to run inside the container to evaluate the patch
         {task["eval_script"]}
 
-        ## Optional hints about the issue
+        ## Optional hints
         {task["hints_text"]}
 
         ## Repository name (default="")

@@ -30,8 +30,7 @@ class SyncMCPClient:
         self.loop.run_forever()
 
     def run(self, coro):
-        future = asyncio.run_coroutine_threadsafe(coro, self.loop)
-        return future.result(timeout=30)
+        return asyncio.run_coroutine_threadsafe(coro, self.loop).result()
 
     def list_tools(self):
         return self.run(self.client.list_tools())
